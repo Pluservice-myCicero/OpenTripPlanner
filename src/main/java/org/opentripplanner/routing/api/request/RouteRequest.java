@@ -81,6 +81,10 @@ public class RouteRequest implements Cloneable, Serializable {
 
   private boolean wheelchair = false;
 
+  public boolean walkOnlyPermitted = false;
+
+  public double maxWalkDistance = 1500.0;
+
   /* CONSTRUCTORS */
 
   /** Constructor for options; modes defaults to walk and transit */
@@ -403,6 +407,14 @@ public class RouteRequest implements Cloneable, Serializable {
 
   public void setNumItineraries(int numItineraries) {
     this.numItineraries = numItineraries;
+  }
+
+  public double maxWalkDistance() {
+    return maxWalkDistance;
+  }
+
+  public void setMaxWalkDistance(double maxWalkDistance) {
+    this.maxWalkDistance = maxWalkDistance;
   }
 
   public String toString() {

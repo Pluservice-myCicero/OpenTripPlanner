@@ -39,6 +39,7 @@ import org.opentripplanner.routing.api.response.RoutingError;
 import org.opentripplanner.routing.api.response.RoutingErrorCode;
 import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.routing.framework.DebugTimingAggregator;
+import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.opentripplanner.street.search.TemporaryVerticesContainer;
 
@@ -236,12 +237,10 @@ public class TransitRouter {
       });
     }
 
-    Duration durationLimit = accessRequest
-      .preferences()
-      .street()
-      .accessEgress()
-      .maxDuration()
-      .valueOf(streetRequest.mode());
+    double speedDuration = request.maxWalkDistance / request.preferences().walk().speed();
+    long roundedSpeedDuration = Math.round(speedDuration);
+    Duration durationLimit = Duration.ofSeconds(roundedSpeedDuration);
+
     int stopCountLimit = accessRequest.preferences().street().accessEgress().maxStopCount();
 
     var nearbyStops = AccessEgressRouter.streetSearch(

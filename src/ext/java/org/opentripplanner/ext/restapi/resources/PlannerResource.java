@@ -65,7 +65,8 @@ public class PlannerResource extends RoutingResource {
     RoutingResponse res = null;
     try {
       /* Fill in request fields from query parameters via shared superclass method, catching any errors. */
-      request = super.buildRequest(uriInfo.getQueryParameters());
+      var pars = uriInfo.getQueryParameters();
+      request = super.buildRequest(pars);
 
       // Route
       res = serverContext.routingService().route(request);

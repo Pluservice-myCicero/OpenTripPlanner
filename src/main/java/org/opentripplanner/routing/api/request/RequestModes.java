@@ -2,9 +2,15 @@ package org.opentripplanner.routing.api.request;
 
 import static org.opentripplanner.routing.api.request.StreetMode.NOT_SET;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
+import org.opentripplanner.transit.model.basic.MainAndSubMode;
+import org.opentripplanner.transit.model.basic.TransitMode;
 
 public class RequestModes {
 
@@ -15,7 +21,8 @@ public class RequestModes {
     StreetMode.WALK,
     StreetMode.WALK,
     StreetMode.WALK,
-    StreetMode.WALK
+    StreetMode.WALK,
+    RequestModesBuilder.getAllTransitModesExceptCarpooling()
   );
 
   @Nonnull
@@ -30,21 +37,32 @@ public class RequestModes {
   @Nonnull
   public final StreetMode transferMode;
 
+  @Nonnull
+  public final Set<TransitMode> transitModes;
+
   private RequestModes(
     StreetMode accessMode,
     StreetMode egressMode,
     StreetMode directMode,
-    StreetMode transferMode
+    StreetMode transferMode,
+    Set<TransitMode> transitModes
   ) {
     this.accessMode = (accessMode != null && accessMode.accessAllowed()) ? accessMode : NOT_SET;
     this.egressMode = (egressMode != null && egressMode.egressAllowed()) ? egressMode : NOT_SET;
     this.directMode = directMode != null ? directMode : NOT_SET;
     this.transferMode =
       (transferMode != null && transferMode.transferAllowed()) ? transferMode : NOT_SET;
+    this.transitModes = transitModes != null ? new HashSet<>(transitModes) : Set.of();
   }
 
   public RequestModes(RequestModesBuilder builder) {
-    this(builder.accessMode(), builder.egressMode(), builder.directMode(), builder.transferMode());
+    this(
+      builder.accessMode(),
+      builder.egressMode(),
+      builder.directMode(),
+      builder.transferMode(),
+      builder.transitModes()
+    );
   }
 
   /**
@@ -91,12 +109,16 @@ public class RequestModes {
       return false;
     }
 
+    if (transitModes != that.transitModes) {
+      return false;
+    }
+
     return transferMode == that.transferMode;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accessMode, egressMode, directMode, transferMode);
+    return Objects.hash(accessMode, egressMode, directMode, transferMode, transitModes);
   }
 
   @Override
@@ -107,6 +129,7 @@ public class RequestModes {
       .addEnum("egressMode", egressMode)
       .addEnum("directMode", directMode)
       .addEnum("transferMode", transferMode)
+      .addCol("transitModes", transitModes)
       .toString();
   }
 }

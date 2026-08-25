@@ -7,7 +7,10 @@ public enum TraverseMode {
   BICYCLE,
   SCOOTER,
   CAR,
-  FLEX;
+  FLEX,
+  CarPoolingRequest,
+  CarPoolingOffer,
+  TaxiRequest;
 
   private static final EnumSet<TraverseMode> STREET_MODES = EnumSet.of(WALK, BICYCLE, SCOOTER, CAR);
 

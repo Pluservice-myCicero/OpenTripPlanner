@@ -1,5 +1,6 @@
 package org.opentripplanner.routing.impl;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import org.opentripplanner.astar.strategy.PathComparator;
 import org.opentripplanner.ext.dataoverlay.routing.DataOverlayContext;
 import org.opentripplanner.framework.application.OTPRequestTimeoutException;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.StreetPreferences;
 import org.opentripplanner.routing.error.PathNotFoundException;
 import org.opentripplanner.street.model.StreetConstants;
@@ -83,15 +85,18 @@ public class GraphPathFinder {
     Set<Vertex> to
   ) {
     StreetPreferences preferences = request.preferences().street();
-
+    double speedDuration = request.maxWalkDistance / request.preferences().walk().speed();
+    long roundedSpeedDuration = Math.round(speedDuration);
+    Duration duration = null;
+    if (request.journey().direct().mode() != StreetMode.WALK) {
+      duration = preferences.maxDirectDuration().valueOf(request.journey().direct().mode());
+    } else {
+      duration = Duration.ofSeconds(roundedSpeedDuration);
+    }
     StreetSearchBuilder aStar = StreetSearchBuilder
       .of()
       .setHeuristic(new EuclideanRemainingWeightHeuristic(maxCarSpeed))
-      .setSkipEdgeStrategy(
-        new DurationSkipEdgeStrategy(
-          preferences.maxDirectDuration().valueOf(request.journey().direct().mode())
-        )
-      )
+      .setSkipEdgeStrategy(new DurationSkipEdgeStrategy(duration))
       // FORCING the dominance function to weight only
       .setDominanceFunction(new DominanceFunctions.MinimumWeight())
       .setRequest(request)

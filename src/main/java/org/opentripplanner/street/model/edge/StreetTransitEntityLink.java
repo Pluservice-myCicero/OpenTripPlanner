@@ -132,6 +132,9 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
       // may be reached by car
       case WALK -> buildState(s0, s1, pref);
       case FLEX -> State.empty();
+      case CarPoolingRequest -> null;
+      case CarPoolingOffer -> null;
+      case TaxiRequest -> null;
     };
   }
 

@@ -3,10 +3,12 @@ package org.opentripplanner.graph_builder.module.geometry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -300,39 +302,71 @@ public class GeometryProcessor {
    * Find a consistent, increasing list of LinearLocations along a shape for a set of stops. Handles
    * loops routes.
    */
+  private static final int MAX_RECURSION_DEPTH = 100;
+  private static ThreadLocal<Integer> recursionDepth = ThreadLocal.withInitial(() -> 0);
+
+  // `visitedStates` tiene traccia delle combinazioni specifiche di `index` e `prevSegmentIndex` visitate,
+  // per prevenire la ricorsione infinita.
+  private Set<String> visitedStates = new HashSet<>();
+
   private List<LinearLocation> getStopLocations(
     List<List<IndexedLineSegment>> possibleSegmentsForStop,
     List<StopTime> stopTimes,
     int index,
     int prevSegmentIndex
   ) {
-    if (index == stopTimes.size()) {
-      return new LinkedList<>();
-    }
-
-    StopTime st = stopTimes.get(index);
-    StopLocation stop = st.getStop();
-    Coordinate stopCoord = stop.getCoordinate().asJtsCoordinate();
-
-    for (IndexedLineSegment segment : possibleSegmentsForStop.get(index)) {
-      if (segment.index < prevSegmentIndex) {
-        //can't go backwards along line
-        continue;
-      }
-      List<LinearLocation> locations = getStopLocations(
-        possibleSegmentsForStop,
-        stopTimes,
-        index + 1,
-        segment.index
+    Integer depth = recursionDepth.get();
+    if (depth > MAX_RECURSION_DEPTH) {
+      LOG.error(
+        "Max recursion depth exceeded at index " + index + " with segment index " + prevSegmentIndex
       );
-      if (locations != null) {
-        LinearLocation location = new LinearLocation(0, segment.index, segment.fraction(stopCoord));
-        locations.add(0, location);
-        return locations; //we found one!
-      }
+      return null;
     }
 
-    return null;
+    // Track the state to avoid revisiting the same configuration
+    String stateKey = index + "-" + prevSegmentIndex;
+    if (visitedStates.contains(stateKey)) {
+      return null; // skip to avoid unnecessary loops
+    }
+    visitedStates.add(stateKey);
+
+    recursionDepth.set(depth + 1);
+    try {
+      if (index == stopTimes.size()) {
+        return new LinkedList<>();
+      }
+
+      StopTime st = stopTimes.get(index);
+      StopLocation stop = st.getStop();
+      Coordinate stopCoord = stop.getCoordinate().asJtsCoordinate();
+
+      for (IndexedLineSegment segment : possibleSegmentsForStop.get(index)) {
+        if (segment.index < prevSegmentIndex) {
+          continue;
+        }
+
+        List<LinearLocation> locations = getStopLocations(
+          possibleSegmentsForStop,
+          stopTimes,
+          index + 1,
+          segment.index
+        );
+
+        if (locations != null) {
+          LinearLocation location = new LinearLocation(
+            0,
+            segment.index,
+            segment.fraction(stopCoord)
+          );
+          locations.add(0, location);
+          return locations; // Successfully found a valid path
+        }
+      }
+    } finally {
+      recursionDepth.set(depth);
+    }
+
+    return null; // No valid path found
   }
 
   private LineString getHopGeometryViaShapeDistTraveled(

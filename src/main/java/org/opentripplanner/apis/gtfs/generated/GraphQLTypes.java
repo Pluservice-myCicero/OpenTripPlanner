@@ -3148,6 +3148,9 @@ public class GraphQLTypes {
     TAXI,
     TRAM,
     TROLLEYBUS,
+    CarPoolingRequest,
+    CarPoolingOffer,
+    TaxiRequest,
   }
 
   public static class GraphQLTransportModeInput {

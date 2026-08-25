@@ -17,6 +17,8 @@ import org.opentripplanner.datastore.base.DataSourceRepository;
 import org.opentripplanner.datastore.file.FileDataSourceRepository;
 import org.opentripplanner.datastore.https.HttpsDataSourceRepository;
 
+//import javax.validation.constraints.Pattern;
+
 /**
  * This is the global access point to create a data store and create datasource objects(tests). It
  * uses a build pattern to configure the data store before creating it.
@@ -81,7 +83,8 @@ public abstract class DataStoreModule {
   ) {
     return new FileDataSourceRepository(
       baseDirectory,
-      config.gtfsLocalFilePattern(),
+      java.util.regex.Pattern.compile("(?i)OTP"),
+      //config.gtfsLocalFilePattern(),
       config.netexLocalFilePattern(),
       config.osmLocalFilePattern(),
       config.demLocalFilePattern()

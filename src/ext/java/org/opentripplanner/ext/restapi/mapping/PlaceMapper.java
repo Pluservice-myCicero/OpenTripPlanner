@@ -1,5 +1,6 @@
 package org.opentripplanner.ext.restapi.mapping;
 
+import com.esotericsoftware.minlog.Log;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +60,9 @@ public class PlaceMapper {
 
     ApiPlace api = new ApiPlace();
 
-    api.name = domain.name.toString(locale);
+    if (domain.name != null) {
+      api.name = domain.name.toString(locale);
+    }
 
     if (domain.stop != null) {
       api.stopId = FeedScopedIdMapper.mapToApi(domain.stop.getId());

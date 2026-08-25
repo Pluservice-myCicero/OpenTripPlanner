@@ -15,6 +15,7 @@ import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.model.ShapePoint;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.model.transfer.ConstrainedTransfer;
+import org.opentripplanner.standalone.OTPMain;
 import org.opentripplanner.transit.model.basic.Notice;
 import org.opentripplanner.transit.model.framework.AbstractTransitEntity;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
@@ -27,6 +28,8 @@ import org.opentripplanner.transit.model.site.Pathway;
 import org.opentripplanner.transit.model.site.PathwayNode;
 import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.transit.service.StopModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A in-memory implementation of {@link OtpTransitService}. It's super fast for most methods, but
@@ -38,6 +41,8 @@ import org.opentripplanner.transit.service.StopModel;
  * do your modification and create a new unmodifiable instance.
  */
 class OtpTransitServiceImpl implements OtpTransitService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(OTPMain.class);
 
   private final Collection<Agency> agencies;
 
@@ -136,6 +141,7 @@ class OtpTransitServiceImpl implements OtpTransitService {
   public List<ShapePoint> getShapePointsForShapeId(FeedScopedId shapeId) {
     final List<ShapePoint> points = shapePointsByShapeId.get(shapeId);
     if (points == null) {
+      LOG.warn("ShapeId " + shapeId + " not found");
       return List.of();
     }
     return immutableList(points);

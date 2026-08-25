@@ -3,6 +3,7 @@ package org.opentripplanner.street.model.edge;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -214,6 +215,9 @@ public class StreetEdge
       case WALK -> isWalkNoThruTraffic();
       case BICYCLE, SCOOTER -> isBicycleNoThruTraffic();
       case CAR, FLEX -> isMotorVehicleNoThruTraffic();
+      case CarPoolingRequest -> false;
+      case CarPoolingOffer -> false;
+      case TaxiRequest -> false;
     };
   }
 
@@ -238,6 +242,9 @@ public class StreetEdge
         case CAR -> getCarSpeed();
         case SCOOTER -> preferences.scooter().speed();
         case FLEX -> throw new IllegalArgumentException("getSpeed(): Invalid mode " + traverseMode);
+        case CarPoolingRequest -> 0.0;
+        case CarPoolingOffer -> 0.0;
+        case TaxiRequest -> 0.0;
       };
 
     return isStairs() ? (speed / preferences.walk().stairsTimeFactor()) : speed;
@@ -945,6 +952,20 @@ public class StreetEdge
           )
         );
     }
+  }
+
+  private static void applyToAdjacentEdges(
+    StreetEdge formerEdge,
+    StreetEdge newToEdge,
+    Collection<Edge> adjacentEdges
+  ) {
+    adjacentEdges
+      .stream()
+      .filter(StreetEdge.class::isInstance)
+      .map(StreetEdge.class::cast)
+      .flatMap(originatingEdge -> originatingEdge.getTurnRestrictions().stream())
+      .filter(restriction -> restriction.to == formerEdge)
+      .forEach(restriction -> applyRestrictionsToNewEdge(restriction.from, newToEdge, restriction));
   }
 
   private static void applyRestrictionsToNewEdge(

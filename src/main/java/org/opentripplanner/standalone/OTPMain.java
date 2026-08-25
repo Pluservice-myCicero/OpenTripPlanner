@@ -2,15 +2,24 @@ package org.opentripplanner.standalone;
 
 import static org.opentripplanner.model.projectinfo.OtpProjectInfo.projectInfo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.geotools.referencing.factory.DeferredAuthorityFactory;
 import org.geotools.util.WeakCollectionCleaner;
+import org.opentripplanner.datastore.api.DataSource;
 import org.opentripplanner.framework.application.ApplicationShutdownSupport;
 import org.opentripplanner.framework.application.OtpAppException;
 import org.opentripplanner.graph_builder.GraphBuilder;
 import org.opentripplanner.graph_builder.issue.api.DataImportIssueSummary;
+import org.opentripplanner.logging.LogbackConfigurator;
 import org.opentripplanner.raptor.configure.RaptorConfig;
+import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.SerializedGraphObject;
 import org.opentripplanner.standalone.config.CommandLineParameters;
 import org.opentripplanner.standalone.configure.ConstructApplication;
@@ -48,9 +57,28 @@ public class OTPMain {
    * line.
    */
   public static void main(String[] args) {
+    // Determine if the application is running in debug mode
+    boolean isDebug =
+      java.lang.management.ManagementFactory
+        .getRuntimeMXBean()
+        .getInputArguments()
+        .toString()
+        .indexOf("-agentlib:jdwp") >
+      0;
+
+    // Initialize logging configuration with a specific directory name
+    CommandLineParameters params = parseAndValidateCmdLine(args);
+    LogbackConfigurator.configure(params.getBaseDirectory().getName());
+
+    // Set the log level based on the debug mode
+    Level level = Level.toLevel(isDebug ? "DEBUG" : "INFO");
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
+    loggerList.forEach(tmpLogger -> tmpLogger.setLevel(level));
+    LOG.info("Change log level to {}", level);
+
     try {
       Thread.currentThread().setName("main");
-      CommandLineParameters params = parseAndValidateCmdLine(args);
       OtpStartupInfo.logInfo();
       startOTPServer(params);
     } catch (OtpAppException ae) {
@@ -87,7 +115,7 @@ public class OTPMain {
         jc.usage();
         System.exit(0);
       }
-      params.inferAndValidate();
+      params.inferAndValidate(!params.killExisting);
     } catch (ParameterException pex) {
       LOG.error("Parameter error: {}", pex.getMessage());
       System.exit(1);
@@ -125,6 +153,10 @@ public class OTPMain {
       app = loadApp.appConstruction(obj);
       config.updateConfigFromSerializedGraph(obj.buildConfig, obj.routerConfig);
       graphAvailable = true;
+
+      obj.graph.routerId = cli.getBaseDirectory().getName();
+      obj.graph.setBuildTime(loadApp.getInputGraphDataStore().lastModified());
+      LOG.debug("graph build time: {}", obj.graph.getBuildTime());
     } else {
       app = loadApp.appConstruction();
     }
@@ -161,6 +193,14 @@ public class OTPMain {
       LOG.info("Memory optimized {}", app.graph().deduplicator.toString());
     }
 
+    // Load graph from disk if not present from build
+    if (!graphAvailable && (cli.doLoadGraph() || cli.doLoadStreetGraph())) {
+      SerializedGraphObject obj = SerializedGraphObject.load(loadApp.getInputGraphDataStore());
+      app = loadApp.appConstruction(obj);
+      config.updateConfigFromSerializedGraph(obj.buildConfig, obj.routerConfig);
+      graphAvailable = true;
+    }
+
     if (!graphAvailable) {
       LOG.error("Nothing to do, no graph loaded or build. Exiting.");
       System.exit(101);
@@ -180,7 +220,7 @@ public class OTPMain {
 
     // publishing the config version info make it available to the APIs
     setOtpConfigVersionsOnServerInfo(app);
-
+    var configModel = app.getFactory().config();
     /* Start visualizer if requested. */
     if (params.visualize) {
       app.graphVisualizer().run();
@@ -191,6 +231,35 @@ public class OTPMain {
     // This would also avoid the awkward call to set the router on the appConstruction after it's constructed.
     // However, currently the server runs in a blocking way and waits for shutdown, so has to run last.
     if (params.doServe()) {
+      // kill existing process using port
+      if (params.killExisting) {
+        try {
+          String outLine, searchPort = String.format("0.0.0.0:%s", params.port);
+          Process p = Runtime.getRuntime().exec("netstat -aon");
+          BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+          while ((outLine = input.readLine()) != null) {
+            List<String> outWords = Arrays.asList(outLine.split("[ ]"));
+
+            if (outWords.contains("LISTENING") && outWords.contains(searchPort)) {
+              String pid = outWords.get(outWords.size() - 1);
+              LOG.info("killing process PID: {}", pid);
+              Process kill = Runtime.getRuntime().exec("taskkill /f /pid " + pid);
+              while (kill.isAlive()) {
+                Thread.sleep(100);
+              }
+              if (kill.exitValue() != 0) LOG.error(
+                "An error {} occurred when try kill process PID {}",
+                kill.exitValue(),
+                pid
+              );
+            }
+          }
+          input.close();
+        } catch (Exception err) {
+          err.printStackTrace();
+        }
+      }
+
       GrizzlyServer grizzlyServer = app.createGrizzlyServer();
 
       registerShutdownHookToGracefullyShutDownServer(app.transitModel(), app.raptorConfig());

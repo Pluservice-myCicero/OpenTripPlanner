@@ -1,8 +1,17 @@
 package org.opentripplanner.gtfs.graphbuilder;
 
+import com.google.common.io.Files;
 import java.awt.Color;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +91,9 @@ public class GtfsModule implements GraphBuilderModule {
   private final DataImportIssueStore issueStore;
   private int nextAgencyId = 1; // used for generating agency IDs to resolve ID conflicts
 
+  private final String errorsFileName = "ERRORS\\builder_errors.txt";
+  private List<File> gtfsBundlesToDelete = new ArrayList<File>();
+
   public GtfsModule(
     List<GtfsBundle> bundles,
     TransitModel transitModel,
@@ -116,6 +128,9 @@ public class GtfsModule implements GraphBuilderModule {
 
   @Override
   public void buildGraph() {
+    File errorsFile = null;
+    FileWriter errors = null;
+
     CalendarServiceData calendarServiceData = new CalendarServiceData();
 
     boolean hasTransit = false;
@@ -124,25 +139,69 @@ public class GtfsModule implements GraphBuilderModule {
 
     try {
       for (GtfsBundle gtfsBundle : gtfsBundles) {
-        GtfsMutableRelationalDao gtfsDao = loadBundle(gtfsBundle);
+        // disabilitate le cartelle che contengono i txt esplosi
+        Path path = Paths.get(gtfsBundle.getPath());
+        if (path.toFile().isDirectory()) {
+          LOG.warn("GTFS Folders disabled: {}", gtfsBundle.getPath());
+          continue;
+        }
 
-        final String feedId = gtfsBundle.getFeedId().getId();
-        verifyUniqueFeedId(gtfsBundle, feedIdsEncountered, feedId);
+        if (errorsFile == null) try {
+          errorsFile = new File(path.getParent() + "\\" + errorsFileName);
+          Files.createParentDirs(errorsFile);
+          errorsFile.createNewFile();
+          errors = new FileWriter(errorsFile);
+        } catch (IOException e) {
+          LOG.error("Creating log error file: {}", e.toString());
+        }
 
-        feedIdsEncountered.put(feedId, gtfsBundle);
+        OtpTransitServiceBuilder builder = null;
+        try {
+          GtfsMutableRelationalDao gtfsDao = loadBundle(gtfsBundle);
 
-        GTFSToOtpTransitServiceMapper mapper = new GTFSToOtpTransitServiceMapper(
-          new OtpTransitServiceBuilder(transitModel.getStopModel(), issueStore),
-          feedId,
-          issueStore,
-          gtfsBundle.discardMinTransferTimes(),
-          gtfsDao,
-          gtfsBundle.stationTransferPreference()
-        );
-        mapper.mapStopTripAndRouteDataIntoBuilder();
+          final String feedId = gtfsBundle.getFeedId().getId();
+          verifyUniqueFeedId(gtfsBundle, feedIdsEncountered, feedId);
 
-        OtpTransitServiceBuilder builder = mapper.getBuilder();
-        var fareRulesService = mapper.getFareRulesService();
+          feedIdsEncountered.put(feedId, gtfsBundle);
+
+          GTFSToOtpTransitServiceMapper mapper = new GTFSToOtpTransitServiceMapper(
+            new OtpTransitServiceBuilder(transitModel.getStopModel(), issueStore),
+            feedId,
+            issueStore,
+            gtfsBundle.discardMinTransferTimes(),
+            gtfsDao,
+            gtfsBundle.stationTransferPreference()
+          );
+          mapper.mapStopTripAndRouteDataIntoBuilder();
+
+          builder = mapper.getBuilder();
+          var fareRulesService = mapper.getFareRulesService();
+
+          // We need to run this after the cleaning of the data, as stop indices might have changed
+          mapper.mapAndAddTransfersToBuilder();
+
+          fareServiceFactory.processGtfs(fareRulesService, builder.build());
+        } catch (Exception e) {
+          File fileBundle = new File(gtfsBundle.getPath());
+          gtfsBundlesToDelete.add(fileBundle);
+          Files.copy(
+            fileBundle,
+            new File(errorsFile.getParentFile() + "\\" + fileBundle.getName())
+          );
+          LocalDateTime sysDT = LocalDateTime.now();
+          String str =
+            "DATE:" +
+            DateTimeFormatter
+              .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+              .format(sysDT) +
+            System.getProperty("line.separator");
+          str += "FILE:" + gtfsBundle.getPath() + System.getProperty("line.separator");
+          str += "ERROR:" + e.toString() + System.getProperty("line.separator");
+          str += System.getProperty("line.separator");
+          LOG.error("error reading {}: {}", gtfsBundle.toString(), e.toString());
+          errors.write(str);
+          continue;
+        }
 
         builder.limitServiceDays(transitPeriodLimit);
 
@@ -157,9 +216,6 @@ public class GtfsModule implements GraphBuilderModule {
           issueStore,
           gtfsBundle.removeRepeatedStops()
         );
-
-        // We need to run this after the cleaning of the data, as stop indices might have changed
-        mapper.mapAndAddTransfersToBuilder();
 
         GeometryProcessor geometryProcessor = new GeometryProcessor(
           builder,
@@ -195,7 +251,6 @@ public class GtfsModule implements GraphBuilderModule {
             .run(otpTransitService.getTripPatterns());
         }
 
-        fareServiceFactory.processGtfs(fareRulesService, otpTransitService);
         graph.setFareService(fareServiceFactory.makeFareService());
       }
     } catch (IOException e) {
@@ -204,6 +259,25 @@ public class GtfsModule implements GraphBuilderModule {
       // Note the close method of each bundle should NOT throw an exception, so this
       // code should be safe without the try/catch block.
       gtfsBundles.forEach(GtfsBundle::close);
+    }
+
+    if (errors != null) {
+      try {
+        // Rimuove il file degli errori se vuoto
+        errors.close();
+        if (errorsFile.length() <= 2) errorsFile.delete();
+
+        // rimuove i gtfs errati (sono gia' stati copiati nella cartella degli errori)
+        gtfsBundlesToDelete.forEach(f -> {
+          //f.deleteOnExit();
+          if (!f.delete()) LOG.error("NOT REMOVED gtfs with errors {}", f.getPath()); else LOG.info(
+            "Removed gtfs with errors or updated {}",
+            f.getPath()
+          );
+        });
+      } catch (IOException e) {
+        LOG.error("Saving log error file: {}", e.toString());
+      }
     }
 
     transitModel.validateTimeZones();

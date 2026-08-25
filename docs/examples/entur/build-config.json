@@ -1,10 +1,16 @@
 {
   "configVersion": "{{ Entur CI config build number inserted here }}",
   "dataImportReport": true,
+  "transit": true,
+  "parentStopLinking": true,
+  "stationTransfers": false,
   "subwayAccessTime": 0,
+  "streets": true,
   "embedRouterConfig": true,
   "areaVisibility": true,
   "platformEntriesLinking": true,
+  "matchBusRoutesToStreets": false,
+  "osmWayPropertySet": "norway",
   "staticParkAndRide": true,
   "staticBikeParkAndRide": true,
   "maxDataImportIssuesPerFile": 1000,
@@ -29,13 +35,6 @@
     "osmTagMapping": "norway",
     "timeZone": "Europe/Oslo"
   },
-  "transitFeeds": [
-    {
-      "type": "netex",
-      "source": "gs://${OTP_GCS_BUCKET}/outbound/netex/rb_norway-aggregated-netex-otp2.zip",
-      "feedId": "EN"
-    }
-  ],
   "osm": [
     {
       "source": "gs://${OTP_GCS_BUCKET}/osm/norway-latest.osm.pbf"

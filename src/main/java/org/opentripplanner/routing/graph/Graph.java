@@ -1,10 +1,12 @@
 package org.opentripplanner.routing.graph;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 import jakarta.inject.Inject;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,8 @@ public class Graph implements Serializable {
   public final transient Deduplicator deduplicator;
 
   public final Instant buildTime = Instant.now();
+
+  public Date buildDateTime;
 
   @Nullable
   private final OpeningHoursCalendarService openingHoursCalendarService;
@@ -114,6 +118,9 @@ public class Graph implements Serializable {
   public DataOverlayParameterBindings dataOverlayParameterBindings;
   private LuceneIndex luceneIndex;
 
+  // TODO Remove this field, use Router.routerId ?
+  public String routerId;
+
   @Inject
   public Graph(
     Deduplicator deduplicator,
@@ -135,15 +142,20 @@ public class Graph implements Serializable {
   /**
    * Add the given vertex to the graph.
    */
+  int qtaVertexDups = 0;
+
   public void addVertex(Vertex v) {
     Vertex old = vertices.put(v.getLabel(), v);
     if (old != null) {
-      if (old == v) {
+      if (qtaVertexDups++ == 50) {
+        LOG.error("Other duplicate vertex errors hidden");
+      } else if (old == v) {
         LOG.error("repeatedly added the same vertex: {}", v);
       } else {
         LOG.error(
-          "duplicate vertex label in graph (added vertex to graph anyway): {}",
-          v.getLabel()
+          "duplicate vertex label in graph (added vertex to graph anyway): old:{} new:{}",
+          old,
+          v
         );
       }
     }
@@ -374,5 +386,13 @@ public class Graph implements Serializable {
     if (streetIndex == null) {
       index(stopModel);
     }
+  }
+
+  public Date getBuildTime() {
+    return buildDateTime;
+  }
+
+  public void setBuildTime(long dateTime) {
+    buildDateTime = new Date(dateTime);
   }
 }

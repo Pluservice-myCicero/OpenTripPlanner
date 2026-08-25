@@ -60,6 +60,10 @@ class RequestToPreferencesMapper {
       setIfNotNull(req.walkSpeed, walk::withSpeed);
       setIfNotNull(req.walkBoardCost, walk::withBoardCost);
       setIfNotNull(req.walkSafetyFactor, walk::withSafetyFactor);
+      if (req.maxWalkDistance != null) {
+        double tmp = (double) req.maxWalkDistance;
+        setIfNotNull(tmp, walk::withMaxWalkDistance);
+      }
     });
   }
 

@@ -1,7 +1,10 @@
 package org.opentripplanner.street.model.edge;
 
+import jakarta.annotation.Nonnull;
+import java.util.List;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.street.model.TurnRestriction;
 
 public final class TemporaryPartialStreetEdge extends StreetEdge implements TemporaryEdge {
 
@@ -107,5 +110,11 @@ public final class TemporaryPartialStreetEdge extends StreetEdge implements Temp
   @Override
   public int getOutAngle() {
     return parentEdge.getInAngle();
+  }
+
+  @Nonnull
+  @Override
+  public List<TurnRestriction> getTurnRestrictions() {
+    return parentEdge.getTurnRestrictions();
   }
 }

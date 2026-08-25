@@ -29,6 +29,7 @@ public class RaptorTransferIndex {
   ) {
     var forwardTransfers = new ArrayList<List<RaptorTransfer>>(transfersByStopIndex.size());
     var reversedTransfers = new ArrayList<List<RaptorTransfer>>(transfersByStopIndex.size());
+    var maxWalkDistance = request.preferences().walk().maxWalkDistance();
 
     for (int i = 0; i < transfersByStopIndex.size(); i++) {
       forwardTransfers.add(new ArrayList<>());
@@ -42,6 +43,7 @@ public class RaptorTransferIndex {
         .get(fromStop)
         .stream()
         .flatMap(s -> s.asRaptorTransfer(request).stream())
+        .filter(rt -> checkTransferMaxWalkDistance(rt, maxWalkDistance))
         .collect(
           toMap(RaptorTransfer::stop, Function.identity(), (a, b) -> a.c1() < b.c1() ? a : b)
         )
@@ -57,6 +59,17 @@ public class RaptorTransferIndex {
     }
 
     return new RaptorTransferIndex(forwardTransfers, reversedTransfers);
+  }
+
+  private static boolean checkTransferMaxWalkDistance(
+    RaptorTransfer transfer,
+    double maxWalkDistance
+  ) {
+    if (transfer instanceof DefaultRaptorTransfer) {
+      DefaultRaptorTransfer streetTransfer = (DefaultRaptorTransfer) transfer;
+      return streetTransfer.transfer().getDistanceMeters() <= maxWalkDistance;
+    }
+    return true;
   }
 
   public List<RaptorTransfer> getForwardTransfers(int stopIndex) {

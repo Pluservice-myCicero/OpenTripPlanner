@@ -157,4 +157,8 @@ public class GtfsBundle {
   public int maxInterlineDistance() {
     return maxInterlineDistance;
   }
+
+  public String getPath() {
+    return this.dataSource.path();
+  }
 }

@@ -102,7 +102,7 @@ public class QualifiedModeSet implements Serializable {
             throw new IllegalArgumentException();
           }
         }
-        case CAR -> {
+        case CAR, CarPoolingOffer, CarPoolingRequest, TaxiRequest -> {
           if (requestMode.qualifiers.contains(Qualifier.RENT)) {
             mBuilder.withAllStreetModes(StreetMode.CAR_RENTAL);
           } else if (requestMode.qualifiers.contains(Qualifier.PARK)) {

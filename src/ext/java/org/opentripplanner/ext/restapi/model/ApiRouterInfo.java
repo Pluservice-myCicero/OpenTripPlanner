@@ -1,5 +1,6 @@
 package org.opentripplanner.ext.restapi.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -11,7 +12,7 @@ import org.opentripplanner.service.worldenvelope.model.WorldEnvelope;
 import org.opentripplanner.transit.service.TransitService;
 
 @SuppressWarnings("unused")
-public class ApiRouterInfo {
+public class ApiRouterInfo implements Serializable {
 
   /** Keep ref to domain object, but avoid exposing it */
   private final WorldEnvelope envelope;
@@ -40,7 +41,7 @@ public class ApiRouterInfo {
 
     this.routerId = routerId;
     this.polygon = graph.getConvexHull();
-    this.buildTime = Date.from(graph.buildTime);
+    this.buildTime = graph.getBuildTime();
     this.transitServiceStarts = transitService.getTransitServiceStarts().toEpochSecond();
     this.transitServiceEnds = transitService.getTransitServiceEnds().toEpochSecond();
     this.transitModes = ModeMapper.mapToApi(transitService.getTransitModes());

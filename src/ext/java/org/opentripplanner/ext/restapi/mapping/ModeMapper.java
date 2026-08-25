@@ -42,6 +42,10 @@ public class ModeMapper {
       case WALK -> "WALK";
       case SCOOTER -> "SCOOTER";
       case FLEX -> throw new IllegalStateException();
+      // Car-pooling
+      case CarPoolingRequest -> "CarPoolingRequest";
+      case CarPoolingOffer -> "CarPoolingOffer";
+      case TaxiRequest -> "TaxiRequest";
     };
   }
 
@@ -65,6 +69,10 @@ public class ModeMapper {
       case MONORAIL -> "MONORAIL";
       case CARPOOL -> "CARPOOL";
       case TAXI -> "TAXI";
+      // Car-pooling
+      case CarPoolingRequest -> "CarPoolingRequest";
+      case CarPoolingOffer -> "CarPoolingOffer";
+      case TaxiRequest -> "TaxiRequest";
     };
   }
 }

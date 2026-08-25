@@ -99,6 +99,11 @@ public abstract class Vertex implements AStarVertex<State, Edge, Vertex>, Serial
   }
 
   public Collection<Edge> getOutgoing() {
+    if (outgoing == null) {
+      LOG.warn("The outgoing edges of vertex is null: {}", this);
+      return List.of();
+    }
+
     return Arrays.asList(outgoing);
   }
 
@@ -107,6 +112,11 @@ public abstract class Vertex implements AStarVertex<State, Edge, Vertex>, Serial
   }
 
   public int getDegreeOut() {
+    if (outgoing == null) {
+      LOG.warn("The outgoing edges of vertex is null: {}", this);
+      return 0;
+    }
+
     return outgoing.length;
   }
 
@@ -241,6 +251,11 @@ public abstract class Vertex implements AStarVertex<State, Edge, Vertex>, Serial
    * must be handled by the caller, to avoid passing edge array pointers that may be invalidated.
    */
   private static Edge[] addEdge(Edge[] existing, Edge e) {
+    if (existing == null) {
+      LOG.warn("Element existing is null!");
+      return new Edge[] { e };
+    }
+
     Edge[] copy = new Edge[existing.length + 1];
     int i;
     for (i = 0; i < existing.length; i++) {

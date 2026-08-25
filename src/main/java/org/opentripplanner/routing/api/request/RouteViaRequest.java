@@ -26,6 +26,7 @@ public class RouteViaRequest implements Serializable {
   private final RoutingPreferences preferences;
   private final Locale locale;
   private final Integer numItineraries;
+  private final Double maxWalkDistance;
 
   private RouteViaRequest(List<ViaLocation> viaLocations, List<JourneyRequest> viaJourneys) {
     if (viaLocations == null || viaLocations.isEmpty()) {
@@ -47,6 +48,7 @@ public class RouteViaRequest implements Serializable {
     this.preferences = new RoutingPreferences();
     this.locale = null;
     this.numItineraries = null;
+    this.maxWalkDistance = null;
 
     // Last ViaSegment has no ViaLocation
     for (int i = 0; i < viaJourneys.size(); i++) {
@@ -65,6 +67,7 @@ public class RouteViaRequest implements Serializable {
     this.locale = builder.locale;
     this.preferences = Objects.requireNonNull(builder.preferences);
     this.numItineraries = builder.numItineraries;
+    this.maxWalkDistance = builder.maxWalkDistance;
   }
 
   public static Builder of(List<ViaLocation> viaLocations, List<JourneyRequest> viaJourneys) {
@@ -86,6 +89,9 @@ public class RouteViaRequest implements Serializable {
     request.setPreferences(preferences);
     if (numItineraries != null) {
       request.setNumItineraries(numItineraries);
+    }
+    if (maxWalkDistance != null) {
+      request.setMaxWalkDistance(maxWalkDistance);
     }
 
     return request;
@@ -142,7 +148,8 @@ public class RouteViaRequest implements Serializable {
       wheelchair == other.wheelchair &&
       Objects.equals(locale, other.locale) &&
       preferences.equals(other.preferences) &&
-      Objects.equals(numItineraries, other.numItineraries)
+      Objects.equals(numItineraries, other.numItineraries) &&
+      maxWalkDistance.equals(other.maxWalkDistance)
     );
   }
 
@@ -157,7 +164,8 @@ public class RouteViaRequest implements Serializable {
       wheelchair,
       locale,
       preferences,
-      numItineraries
+      numItineraries,
+      maxWalkDistance
     );
   }
 
@@ -172,6 +180,7 @@ public class RouteViaRequest implements Serializable {
     private boolean wheelchair;
     private RoutingPreferences preferences;
     private Integer numItineraries;
+    private Double maxWalkDistance;
 
     public Builder(RouteViaRequest original) {
       this.from = original.from;
@@ -182,6 +191,7 @@ public class RouteViaRequest implements Serializable {
       this.preferences = original.preferences;
       this.viaSegments = original.viaSegments;
       this.numItineraries = original.numItineraries;
+      this.maxWalkDistance = original.maxWalkDistance;
     }
 
     public RouteViaRequest build() {
@@ -225,6 +235,11 @@ public class RouteViaRequest implements Serializable {
 
     public Builder withNumItineraries(Integer numItineraries) {
       this.numItineraries = numItineraries;
+      return this;
+    }
+
+    public Builder withMaxWalkDistance(Double maxWalkDistance) {
+      this.maxWalkDistance = maxWalkDistance;
       return this;
     }
   }

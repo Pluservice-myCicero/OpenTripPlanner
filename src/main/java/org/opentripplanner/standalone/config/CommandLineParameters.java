@@ -3,6 +3,7 @@ package org.opentripplanner.standalone.config;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.esotericsoftware.minlog.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -29,6 +30,7 @@ public class CommandLineParameters {
 
   private static final String TIP = " Use --help to see available options.";
   private static final int DEFAULT_PORT = 8080;
+  private static final int DEFAULT_SECURE_PORT = -1;
   private static final String DEFAULT_CACHE_PATH = "/var/otp/cache";
   private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
@@ -39,6 +41,9 @@ public class CommandLineParameters {
 
   @Parameter(names = { "--version" }, description = "Print the version, and then exit.")
   public boolean version = false;
+
+  @Parameter(names = { "--killExisting" }, description = "Print the version, and then exit.")
+  public boolean killExisting = false;
 
   @Parameter(
     names = { "--serializationVersionId" },
@@ -128,6 +133,13 @@ public class CommandLineParameters {
   public Integer port = DEFAULT_PORT;
 
   @Parameter(
+    names = { "--securePort" },
+    validateWith = PositiveInteger.class,
+    description = "Server port for HTTPS."
+  )
+  public Integer securePort = DEFAULT_SECURE_PORT;
+
+  @Parameter(
     names = { "--visualize" },
     description = "Open a graph visualizer window for debugging."
   )
@@ -146,6 +158,14 @@ public class CommandLineParameters {
     return params;
   }
 
+  private static boolean isAdmin() {
+    String groups[] = (new com.sun.security.auth.module.NTSystem()).getGroupIDs();
+    for (String group : groups) {
+      if (group.equals("S-1-5-32-544")) return true;
+    }
+    return false;
+  }
+
   /**
    * Set some convenience parameters based on other parameters' values. Default values are validated
    * even when no command line option is specified, and we will not bind ports unless a server is
@@ -153,9 +173,19 @@ public class CommandLineParameters {
    * that ports are available only when a server will be started.
    */
   public void inferAndValidate() {
+    inferAndValidate(false);
+  }
+
+  public void inferAndValidate(boolean checkPortAvailable) {
     validateOneDirectorySet();
-    validatePortsAvailable();
+    if (checkPortAvailable) validatePortsAvailable();
     validateParameterCombinations();
+
+    if (killExisting && !isAdmin()) {
+      Log.error(
+        "if killExisting parameter is active you must start application with highest privileges"
+      );
+    }
   }
 
   /**
@@ -232,6 +262,7 @@ public class CommandLineParameters {
   private void validatePortsAvailable() {
     if (doServe()) {
       checkPortAvailable(port);
+      if (securePort > 0) checkPortAvailable(securePort);
     }
   }
 

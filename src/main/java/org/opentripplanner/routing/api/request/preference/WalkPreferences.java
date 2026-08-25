@@ -28,6 +28,7 @@ public final class WalkPreferences implements Serializable {
   private final double stairsReluctance;
   private final double stairsTimeFactor;
   private final double safetyFactor;
+  private final double maxWalkDistance;
 
   private final double escalatorReluctance;
 
@@ -39,6 +40,7 @@ public final class WalkPreferences implements Serializable {
     this.stairsTimeFactor = 3.0;
     this.safetyFactor = 1.0;
     this.escalatorReluctance = 1.5;
+    this.maxWalkDistance = 1500.0;
   }
 
   private WalkPreferences(Builder builder) {
@@ -48,6 +50,7 @@ public final class WalkPreferences implements Serializable {
     this.stairsReluctance = Units.reluctance(builder.stairsReluctance);
     this.stairsTimeFactor = Units.reluctance(builder.stairsTimeFactor);
     this.safetyFactor = Units.reluctance(builder.safetyFactor);
+    this.maxWalkDistance = builder.maxWalkDistance;
     this.escalatorReluctance = Units.reluctance(builder.escalatorReluctance);
   }
 
@@ -108,6 +111,10 @@ public final class WalkPreferences implements Serializable {
     return safetyFactor;
   }
 
+  public double maxWalkDistance() {
+    return maxWalkDistance;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -120,6 +127,7 @@ public final class WalkPreferences implements Serializable {
       doubleEquals(that.stairsReluctance, stairsReluctance) &&
       doubleEquals(that.stairsTimeFactor, stairsTimeFactor) &&
       doubleEquals(that.safetyFactor, safetyFactor) &&
+      doubleEquals(that.maxWalkDistance, maxWalkDistance) &&
       doubleEquals(that.escalatorReluctance, escalatorReluctance)
     );
   }
@@ -133,6 +141,7 @@ public final class WalkPreferences implements Serializable {
       stairsReluctance,
       stairsTimeFactor,
       safetyFactor,
+      maxWalkDistance,
       escalatorReluctance
     );
   }
@@ -147,6 +156,7 @@ public final class WalkPreferences implements Serializable {
       .addNum("stairsReluctance", stairsReluctance, DEFAULT.stairsReluctance)
       .addNum("stairsTimeFactor", stairsTimeFactor, DEFAULT.stairsTimeFactor)
       .addNum("safetyFactor", safetyFactor, DEFAULT.safetyFactor)
+      .addNum("maxWalkDistance", maxWalkDistance, DEFAULT.maxWalkDistance)
       .addNum("escalatorReluctance", escalatorReluctance, DEFAULT.escalatorReluctance)
       .toString();
   }
@@ -164,6 +174,7 @@ public final class WalkPreferences implements Serializable {
     private double stairsReluctance;
     private double stairsTimeFactor;
     private double safetyFactor;
+    private double maxWalkDistance;
 
     private double escalatorReluctance;
 
@@ -175,6 +186,7 @@ public final class WalkPreferences implements Serializable {
       this.stairsReluctance = original.stairsReluctance;
       this.stairsTimeFactor = original.stairsTimeFactor;
       this.safetyFactor = original.safetyFactor;
+      this.maxWalkDistance = original.maxWalkDistance;
       this.escalatorReluctance = original.escalatorReluctance;
     }
 
@@ -231,6 +243,10 @@ public final class WalkPreferences implements Serializable {
       return safetyFactor;
     }
 
+    public double maxWalkDistance() {
+      return maxWalkDistance;
+    }
+
     public Builder withSafetyFactor(double safetyFactor) {
       if (safetyFactor < 0) {
         this.safetyFactor = 0;
@@ -239,6 +255,11 @@ public final class WalkPreferences implements Serializable {
       } else {
         this.safetyFactor = safetyFactor;
       }
+      return this;
+    }
+
+    public Builder withMaxWalkDistance(double maxWalkDistance) {
+      this.maxWalkDistance = maxWalkDistance;
       return this;
     }
 

@@ -1,7 +1,9 @@
 package org.opentripplanner.transit.model.basic;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.opentripplanner.framework.doc.DocumentedEnum;
 
 /**
@@ -21,7 +23,11 @@ public enum TransitMode implements DocumentedEnum<TransitMode> {
   TROLLEYBUS,
   MONORAIL,
   CARPOOL,
-  TAXI;
+  TAXI,
+  // Car-pooling
+  CarPoolingRequest,
+  CarPoolingOffer,
+  TaxiRequest;
 
   private static final Set<TransitMode> ON_STREET_MODES = EnumSet.of(
     COACH,
@@ -38,6 +44,10 @@ public enum TransitMode implements DocumentedEnum<TransitMode> {
     EnumSet.of(CARPOOL)
   );
 
+  private static final Set<TransitMode> NO_CARPOOLING_MODES = EnumSet.complementOf(
+    EnumSet.of(CarPoolingRequest, CarPoolingOffer, TaxiRequest, CARPOOL)
+  );
+
   public static Set<TransitMode> transitModesExceptAirplane() {
     return NO_AIRPLANE_MODES;
   }
@@ -47,7 +57,7 @@ public enum TransitMode implements DocumentedEnum<TransitMode> {
    * carpool.
    */
   public static TransitMode[] modesConsideredTransitByUsers() {
-    return NO_CARPOOL_MODES.toArray(TransitMode[]::new);
+    return NO_CARPOOLING_MODES.toArray(TransitMode[]::new);
   }
 
   public boolean onStreet() {
@@ -80,6 +90,14 @@ public enum TransitMode implements DocumentedEnum<TransitMode> {
        This is currently not specified in GTFS so we use the mode type values 1550-1560 which are in the range of private taxis.
        """;
       case TAXI -> "Using a taxi service";
+      case CarPoolingRequest -> "Using a CarPoolingRequest service";
+      case CarPoolingOffer -> "Using a CarPoolingOffer service";
+      case TaxiRequest -> "Using a TaxiRequest service";
     };
+  }
+
+  // Car-pooling
+  public static Set<TransitMode> transitModesExceptCarpooling() {
+    return NO_CARPOOLING_MODES;
   }
 }

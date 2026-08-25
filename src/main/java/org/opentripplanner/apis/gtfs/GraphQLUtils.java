@@ -66,6 +66,9 @@ public class GraphQLUtils {
       case MONORAIL -> GraphQLTransitMode.MONORAIL;
       case CARPOOL -> GraphQLTransitMode.CARPOOL;
       case TAXI -> GraphQLTransitMode.TAXI;
+      case CarPoolingRequest -> GraphQLTransitMode.CarPoolingRequest;
+      case CarPoolingOffer -> GraphQLTransitMode.CarPoolingOffer;
+      case TaxiRequest -> GraphQLTransitMode.TaxiRequest;
     };
   }
 

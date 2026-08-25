@@ -22,7 +22,6 @@
     </encoder>
   </appender>
 
-
   <!-- JSON format in the standard Logstash format understood by many log parsing tools  -->
   <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">

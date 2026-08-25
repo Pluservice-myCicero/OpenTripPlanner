@@ -2,6 +2,7 @@ package org.opentripplanner.api.parameter;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.opentripplanner.transit.model.basic.TransitMode;
 
 public enum ApiRequestMode {
@@ -12,7 +13,7 @@ public enum ApiRequestMode {
   TRAM(TransitMode.TRAM),
   SUBWAY(TransitMode.SUBWAY),
   RAIL(TransitMode.RAIL),
-  BUS(TransitMode.BUS, TransitMode.COACH),
+  BUS(TransitMode.BUS),
   FERRY(TransitMode.FERRY),
   CABLE_CAR(TransitMode.CABLE_CAR),
   GONDOLA(TransitMode.GONDOLA),
@@ -23,7 +24,11 @@ public enum ApiRequestMode {
   MONORAIL(TransitMode.MONORAIL),
   CARPOOL(TransitMode.CARPOOL),
   TAXI(TransitMode.TAXI),
-  FLEX();
+  FLEX(),
+  // Car-pooling
+  CarPoolingRequest(TransitMode.CarPoolingRequest),
+  CarPoolingOffer(TransitMode.CarPoolingOffer),
+  TaxiRequest(TransitMode.TaxiRequest);
 
   private final List<TransitMode> transitModes;
 

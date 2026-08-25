@@ -75,6 +75,7 @@ public class GenerateTripPatternsOperation {
     LOG.info(progressLogger.startMessage());
 
     /* Loop over all trips, handling each one as a frequency-based or scheduled trip. */
+
     for (Trip trip : trips) {
       try {
         buildTripPatternForTrip(trip);
@@ -120,7 +121,6 @@ public class GenerateTripPatternsOperation {
     }
 
     List<StopTime> stopTimes = transitDaoBuilder.getStopTimesSortedByTrip().get(trip);
-
     // If after filtering this trip does not contain at least 2 stoptimes, it does not serve any purpose.
     var staticTripWithFewerThan2Stops =
       !FlexTrip.containsFlexStops(stopTimes) && stopTimes.size() < 2;
