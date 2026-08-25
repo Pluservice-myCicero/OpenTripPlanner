@@ -25,9 +25,6 @@ public class RouteTypeMapper {
       case MONORAIL -> 12;
       case TAXI -> 1500;
       case CARPOOL -> 1551;
-      case CarPoolingRequest -> 1701;
-      case CarPoolingOffer -> 1702;
-      case TaxiRequest -> 1703;
     };
   }
 }
