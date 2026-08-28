@@ -191,6 +191,10 @@ public class TripTimeOnDate {
     return stopPosition;
   }
 
+  public int getStopCount() {
+    return tripTimes.getNumStops();
+  }
+
   public TripTimes getTripTimes() {
     return tripTimes;
   }
@@ -335,6 +339,10 @@ public class TripTimeOnDate {
 
   public Trip getTrip() {
     return tripTimes.getTrip();
+  }
+
+  public String getBlockId() {
+    return tripTimes.getTrip().getGtfsBlockId();
   }
 
   public I18NString getHeadsign() {

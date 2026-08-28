@@ -21,6 +21,7 @@ import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.RaptorTransitData;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.transfer.constrained.ConstrainedTransferService;
+import org.opentripplanner.transfer.regular.model.PathTransfer;
 import org.opentripplanner.transit.api.request.FindRegularStopsByBoundingBoxRequest;
 import org.opentripplanner.transit.api.request.FindRoutesRequest;
 import org.opentripplanner.transit.api.request.FindStopLocationsRequest;
@@ -341,6 +342,10 @@ public interface TransitService {
   TripOnServiceDate getTripOnServiceDate(FeedScopedId id);
 
   Collection<TripOnServiceDate> listTripsOnServiceDate();
+
+  Set<TransitMode> listTransitModes();
+
+  Collection<PathTransfer> findPathTransfers(StopLocation stop);
 
   RaptorTransitData getRaptorTransitData();
 

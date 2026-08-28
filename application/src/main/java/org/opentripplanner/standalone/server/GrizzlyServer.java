@@ -5,8 +5,8 @@ import static org.opentripplanner.framework.application.ApplicationShutdownSuppo
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.ws.rs.core.Application;
-import java.io.File;
 import jakarta.ws.rs.core.MediaType;
+import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 import java.time.Duration;
@@ -109,7 +109,9 @@ public class GrizzlyServer {
 
     // For both HTTP and HTTPS listeners: enable gzip compression, set thread pool, add listener to httpServer.
     for (NetworkListener listener : new NetworkListener[] { httpListener, httpsListener }) {
-      if (listener == null) continue;
+      if (listener == null) {
+        continue;
+      }
       // For the HTTP listener: enable gzip compression, set thread pool, add listener to httpServer.
       CompressionConfig cc = httpListener.getCompressionConfig();
       cc.setCompressionMode(CompressionConfig.CompressionMode.ON);
@@ -121,7 +123,6 @@ public class GrizzlyServer {
       httpListener.setTransactionTimeout((int) httpTransactionTimeout.toSeconds());
       httpServer.addListener(httpListener);
     }
-
 
     /* Add a few handlers (~= servlets) to the Grizzly server. */
 

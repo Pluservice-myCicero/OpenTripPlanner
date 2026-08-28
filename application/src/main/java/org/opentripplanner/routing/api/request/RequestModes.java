@@ -2,12 +2,11 @@ package org.opentripplanner.routing.api.request;
 
 import static org.opentripplanner.street.model.StreetMode.NOT_SET;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.opentripplanner.framework.tostring.ToStringBuilder;
-import org.opentripplanner.transit.model.basic.MainAndSubMode;
-import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.street.model.StreetMode;
+import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.utils.tostring.ToStringBuilder;
 
 public class RequestModes {
@@ -88,8 +87,12 @@ public class RequestModes {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     RequestModes that = (RequestModes) o;
 

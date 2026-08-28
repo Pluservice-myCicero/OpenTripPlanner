@@ -226,7 +226,7 @@ public class StreetSearchRequest implements AStarRequest {
       case BICYCLE -> bike.rental();
       case SCOOTER -> scooter.rental();
       case CAR -> car.rental();
-      case WALK, FLEX -> throw new IllegalArgumentException();
+      default -> throw new IllegalArgumentException();
     };
   }
 

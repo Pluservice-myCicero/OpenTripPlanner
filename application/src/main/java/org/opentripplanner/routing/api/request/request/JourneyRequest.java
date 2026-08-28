@@ -74,6 +74,13 @@ public class JourneyRequest implements Serializable {
     return wheelchair;
   }
 
+  public void setModes(RequestModes modes) {
+    transfer().setMode(modes.transferMode);
+    access().setMode(modes.accessMode);
+    egress().setMode(modes.egressMode);
+    direct().setMode(modes.directMode);
+  }
+
   public RequestModes modes() {
     return RequestModes.of()
       .withAccessMode(access.mode())

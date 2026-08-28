@@ -1,17 +1,12 @@
 package org.opentripplanner.routing.api.request;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.opentripplanner.transit.model.basic.MainAndSubMode;
-import org.opentripplanner.transit.model.basic.SubMode;
-import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.street.model.StreetMode;
+import org.opentripplanner.transit.model.basic.TransitMode;
 
 public class RequestModesBuilder {
 
@@ -77,13 +72,8 @@ public class RequestModesBuilder {
    */
   // Car-pooling
   public static Set<TransitMode> getAllTransitModesExceptCarpooling() {
-    return Arrays
-      .stream(TransitMode.values())
-      .filter(mode ->
-        mode != TransitMode.CARPOOL &&
-        mode != TransitMode.CarPoolingRequest &&
-        mode != TransitMode.CarPoolingOffer
-      )
+    return Arrays.stream(TransitMode.values())
+      .filter(mode -> mode != TransitMode.CARPOOL)
       .collect(Collectors.toCollection(() -> EnumSet.noneOf(TransitMode.class)));
   }
 

@@ -26,23 +26,29 @@ public class TransitRequest implements Serializable {
     List.of(),
     List.of(),
     List.of(),
+    List.of(),
+    List.of(),
     DebugRaptor.defaltValue()
   );
 
-  private final List<TransitFilter> filters;
+  private List<TransitFilter> filters;
 
-  private final List<FeedScopedId> unpreferredAgencies;
+  private List<FeedScopedId> unpreferredAgencies;
+  private List<FeedScopedId> preferredAgencies;
+  private List<FeedScopedId> unpreferredRoutes;
+  private List<FeedScopedId> preferredRoutes;
+  private List<FeedScopedId> bannedTrips;
 
-  private final List<FeedScopedId> unpreferredRoutes;
-  private final List<FeedScopedId> bannedTrips;
-  private final List<TransitGroupSelect> priorityGroupsByAgency;
-  private final List<TransitGroupSelect> priorityGroupsGlobal;
+  private List<TransitGroupSelect> priorityGroupsByAgency;
+  private List<TransitGroupSelect> priorityGroupsGlobal;
   private final DebugRaptor raptorDebugging;
 
   TransitRequest(
     List<TransitFilter> filters,
     List<FeedScopedId> unpreferredAgencies,
+    List<FeedScopedId> preferredAgencies,
     List<FeedScopedId> unpreferredRoutes,
+    List<FeedScopedId> preferredRoutes,
     List<FeedScopedId> bannedTrips,
     List<TransitGroupSelect> priorityGroupsByAgency,
     List<TransitGroupSelect> priorityGroupsGlobal,
@@ -50,7 +56,9 @@ public class TransitRequest implements Serializable {
   ) {
     this.filters = filters;
     this.unpreferredAgencies = unpreferredAgencies;
+    this.preferredAgencies = preferredAgencies;
     this.unpreferredRoutes = unpreferredRoutes;
+    this.preferredRoutes = preferredRoutes;
     this.bannedTrips = bannedTrips;
     this.priorityGroupsByAgency = priorityGroupsByAgency;
     this.priorityGroupsGlobal = priorityGroupsGlobal;
@@ -98,6 +106,10 @@ public class TransitRequest implements Serializable {
     return unpreferredAgencies;
   }
 
+  public List<FeedScopedId> preferredAgencies() {
+    return preferredAgencies;
+  }
+
   /**
    * Set of unpreferred routes for given user and configuration.
    */
@@ -107,6 +119,61 @@ public class TransitRequest implements Serializable {
 
   public DebugRaptor raptorDebugging() {
     return raptorDebugging;
+  }
+
+  @Deprecated
+  public void setPreferredAgenciesFromString(String s) {
+    if (!s.isEmpty()) {
+      preferredAgencies = FeedScopedId.parseList(s);
+    }
+  }
+
+  public void setUnpreferredAgenciesFromString(String s) {
+    if (!s.isEmpty()) {
+      unpreferredAgencies = FeedScopedId.parseList(s);
+    }
+  }
+
+  @Deprecated
+  public void setPreferredRoutesFromString(String s) {
+    if (!s.isEmpty()) {
+      preferredRoutes = List.copyOf(FeedScopedId.parseList(s));
+    } else {
+      preferredRoutes = List.of();
+    }
+  }
+
+  /**
+   * Set of preferred routes by user and configuration.
+   */
+  @Deprecated
+  public List<FeedScopedId> preferredRoutes() {
+    return preferredRoutes;
+  }
+
+  public void setUnpreferredRoutesFromString(String s) {
+    if (!s.isEmpty()) {
+      unpreferredRoutes = List.copyOf(FeedScopedId.parseList(s));
+    } else {
+      unpreferredRoutes = List.of();
+    }
+  }
+
+  public void setBannedTripsFromString(String ids) {
+    if (!ids.isEmpty()) {
+      this.bannedTrips = FeedScopedId.parseList(ids);
+    }
+  }
+
+  public void setFilters(List<TransitFilter> filters) {
+    this.filters = filters;
+  }
+
+  /**
+   * Disables the transit search for this request, for example when you only want bike routes.
+   */
+  public void disable() {
+    this.filters = List.of(ExcludeAllTransitFilter.of());
   }
 
   /**

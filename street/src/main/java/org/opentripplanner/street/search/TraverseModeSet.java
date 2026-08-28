@@ -148,9 +148,7 @@ public class TraverseModeSet implements Cloneable, Serializable {
       case WALK -> MODE_WALK;
       case CAR -> MODE_CAR;
       case FLEX -> 0;
-      case CarPoolingRequest -> 1701;
-      case CarPoolingOffer -> 1702;
-      case TaxiRequest -> 1703;
+
     };
   }
 }

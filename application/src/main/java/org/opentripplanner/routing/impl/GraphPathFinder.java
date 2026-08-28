@@ -1,8 +1,6 @@
 package org.opentripplanner.routing.impl;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -13,14 +11,13 @@ import org.opentripplanner.astar.model.GraphPath;
 import org.opentripplanner.astar.spi.TraverseVisitor;
 import org.opentripplanner.astar.strategy.DurationSkipEdgeStrategy;
 import org.opentripplanner.astar.strategy.PathComparator;
-import org.opentripplanner.ext.dataoverlay.routing.DataOverlayContext;
 import org.opentripplanner.framework.application.OTPRequestTimeoutException;
 import org.opentripplanner.routing.api.request.RouteRequest;
-import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.StreetPreferences;
 import org.opentripplanner.routing.error.PathNotFoundException;
 import org.opentripplanner.routing.linking.LinkingContext;
 import org.opentripplanner.street.model.StreetConstants;
+import org.opentripplanner.street.model.StreetMode;
 import org.opentripplanner.street.model.edge.Edge;
 import org.opentripplanner.street.model.edge.ExtensionRequestContext;
 import org.opentripplanner.street.model.vertex.Vertex;
@@ -61,7 +58,7 @@ public class GraphPathFinder {
   @Nullable
   private final TraverseVisitor<State, Edge> traverseVisitor;
 
-  private final DataOverlayContext dataOverlayContext;
+  private final Collection<ExtensionRequestContext> extensionRequestContexts;
 
   private final float maxCarSpeed;
 
@@ -89,7 +86,7 @@ public class GraphPathFinder {
     Set<Vertex> to
   ) {
     StreetPreferences preferences = request.preferences().street();
-    double speedDuration = request.maxWalkDistance / request.preferences().walk().speed();
+    double speedDuration = request.maxWalkDistance() / request.preferences().walk().speed();
     long roundedSpeedDuration = Math.round(speedDuration);
     Duration duration = null;
     if (request.journey().direct().mode() != StreetMode.WALK) {
@@ -100,11 +97,7 @@ public class GraphPathFinder {
     StreetSearchBuilder aStar = StreetSearchBuilder.of()
       .withPreStartHook(OTPRequestTimeoutException::checkForTimeout)
       .withHeuristic(new EuclideanRemainingWeightHeuristic(maxCarSpeed))
-      .withSkipEdgeStrategy(
-        new DurationSkipEdgeStrategy(
-          preferences.maxDirectDuration().valueOf(request.journey().direct().mode())
-        )
-      )
+      .withSkipEdgeStrategy(new DurationSkipEdgeStrategy<>(duration))
       // FORCING the dominance function to weight only
       .withDominanceFunction(new DominanceFunctions.MinimumWeight())
       .withRequest(

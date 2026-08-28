@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.locationtech.jts.geom.LineString;
@@ -199,9 +195,6 @@ public class StreetEdge
       case WALK -> isWalkNoThruTraffic();
       case BICYCLE, SCOOTER -> isBicycleNoThruTraffic();
       case CAR, FLEX -> isMotorVehicleNoThruTraffic();
-      case CarPoolingRequest -> false;
-      case CarPoolingOffer -> false;
-      case TaxiRequest -> false;
     };
   }
 
@@ -223,9 +216,6 @@ public class StreetEdge
       case CAR -> getCarSpeed();
       case SCOOTER -> Math.min(preferences.scooter().speed(), getCyclingSpeedLimit());
       case FLEX -> throw new IllegalArgumentException("getSpeed(): Invalid mode " + traverseMode);
-      case CarPoolingRequest -> 0.0;
-      case CarPoolingOffer -> 0.0;
-      case TaxiRequest -> 0.0;
     };
 
 
@@ -1073,7 +1063,7 @@ public class StreetEdge
         case BICYCLE -> request.bike().reluctance();
         case SCOOTER -> request.scooter().reluctance();
         case CAR -> request.car().reluctance();
-        case FLEX -> 1;
+        default -> 1;
       };
       time_ms += (long) Math.ceil(1000.0 * turnDuration);
       weight += modeReluctance * request.turnReluctance() * turnDuration;

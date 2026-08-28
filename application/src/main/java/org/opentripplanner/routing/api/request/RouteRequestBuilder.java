@@ -42,7 +42,7 @@ public class RouteRequestBuilder implements Serializable {
   RoutingPreferences preferences;
   int numItineraries;
   boolean defaultRequest;
-
+  int maxWalkDistance;
   private final RouteRequest original;
 
   public RouteRequestBuilder(RouteRequest original) {
@@ -61,6 +61,7 @@ public class RouteRequestBuilder implements Serializable {
     this.preferences = original.preferences();
     this.numItineraries = original.numItineraries();
     this.defaultRequest = original.isDefaultRequest();
+    this.maxWalkDistance = original.maxWalkDistance();
   }
 
   public RouteRequestBuilder withJourney(JourneyRequest journey) {
@@ -173,6 +174,10 @@ public class RouteRequestBuilder implements Serializable {
   public RouteRequest buildRequest() {
     this.defaultRequest = false;
     return build();
+  }
+
+  public void setMaxWalkDistance(int maxWalkDistance) {
+    this.maxWalkDistance = maxWalkDistance;
   }
 
   private RouteRequest build() {

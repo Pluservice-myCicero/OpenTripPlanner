@@ -17,10 +17,6 @@ class ModeMapper {
       case WALK -> "WALK";
       case SCOOTER -> "SCOOTER";
       case FLEX -> throw new IllegalStateException();
-      // Car-pooling
-      case CarPoolingRequest -> "CarPoolingRequest";
-      case CarPoolingOffer -> "CarPoolingOffer";
-      case TaxiRequest -> "TaxiRequest";
     };
   }
 
@@ -45,11 +41,6 @@ class ModeMapper {
       case CARPOOL -> "CARPOOL";
       case TAXI -> "TAXI";
       case SNOW_AND_ICE -> "SNOW_AND_ICE";
-      // Car-pooling
-      case CarPoolingRequest -> "CarPoolingRequest";
-      case CarPoolingOffer -> "CarPoolingOffer";
-      case TaxiRequest -> "TaxiRequest";
-
     };
   }
 }

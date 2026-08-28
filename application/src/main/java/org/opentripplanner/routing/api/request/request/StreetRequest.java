@@ -11,7 +11,7 @@ public class StreetRequest implements Serializable {
 
   public static final StreetRequest DEFAULT = new StreetRequest(StreetMode.WALK);
 
-  private final StreetMode mode;
+  private StreetMode mode;
 
   @Nullable
   private final Duration rentalDuration;
@@ -24,6 +24,10 @@ public class StreetRequest implements Serializable {
   public StreetRequest(StreetMode mode) {
     this.mode = mode;
     this.rentalDuration = null;
+  }
+
+  public void setMode(StreetMode mode) {
+    this.mode = mode;
   }
 
   public StreetMode mode() {

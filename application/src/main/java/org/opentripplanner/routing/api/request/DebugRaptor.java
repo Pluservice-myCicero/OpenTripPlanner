@@ -4,9 +4,11 @@ import static org.opentripplanner.routing.api.request.DebugEventType.DESTINATION
 import static org.opentripplanner.routing.api.request.DebugEventType.STOP_ARRIVALS;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.opentripplanner.utils.collection.EnumSetUtils;
 import org.opentripplanner.utils.tostring.ToStringBuilder;
 
@@ -38,6 +40,7 @@ import org.opentripplanner.utils.tostring.ToStringBuilder;
  */
 public class DebugRaptor implements Serializable {
 
+  private static final Pattern FIRST_STOP_PATTERN = Pattern.compile("(\\d+)\\*");
   private static final int FIRST_STOP_INDEX = 0;
   private static final int DEFAULT_DEBUG_PATH_FROM_STOP_INDEX = 0;
   private static final Set<DebugEventType> DEFAULT_EVENT_TYPES = Set.of(
@@ -46,9 +49,9 @@ public class DebugRaptor implements Serializable {
   );
   private static final DebugRaptor DEFAULT = new DebugRaptor();
 
-  private final List<String> stops;
-  private final List<String> path;
-  private final int debugPathFromStopIndex;
+  private List<String> stops;
+  private List<String> path;
+  private int debugPathFromStopIndex;
   private final Set<DebugEventType> eventTypes;
 
   DebugRaptor(
@@ -95,8 +98,36 @@ public class DebugRaptor implements Serializable {
     return debugPathFromStopIndex;
   }
 
+  private static int firstStopIndexToDebug(List<String> stops, String text) {
+    if (text == null) {
+      return FIRST_STOP_INDEX;
+    }
+
+    var m = FIRST_STOP_PATTERN.matcher(text);
+    String stop = m.find() ? m.group(1) : null;
+    return stop == null ? FIRST_STOP_INDEX : stops.indexOf(stop);
+  }
+
   public Set<DebugEventType> eventTypes() {
     return eventTypes;
+  }
+
+  public DebugRaptor withStops(String stops) {
+    if (stops == null) {
+      return this;
+    }
+    this.stops = split(stops);
+    return this;
+  }
+
+  public DebugRaptor withPath(String path) {
+    if (path == null) {
+      return this;
+    }
+
+    this.path = split(path);
+    this.debugPathFromStopIndex = firstStopIndexToDebug(this.path, path);
+    return this;
   }
 
   @Override
@@ -141,5 +172,15 @@ public class DebugRaptor implements Serializable {
       buf.append(", ");
     }
     return buf.substring(0, buf.length() - 2);
+  }
+
+  private static List<String> split(String stops) {
+    if (stops == null) {
+      return List.of();
+    }
+
+    return Arrays.stream(stops.split("[\\s,;_*]+"))
+      .filter(s -> !s.isBlank())
+      .toList();
   }
 }

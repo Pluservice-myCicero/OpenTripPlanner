@@ -1,6 +1,5 @@
 package org.opentripplanner.routing.algorithm.mapping._support.mapping;
 
-import com.esotericsoftware.minlog.Log;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;

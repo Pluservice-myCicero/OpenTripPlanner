@@ -30,6 +30,11 @@ import org.opentripplanner.ext.ojp.resource.OjpResource;
 import org.opentripplanner.ext.ojp.resource.TriasResource;
 import org.opentripplanner.ext.parkAndRideApi.ParkAndRideResource;
 import org.opentripplanner.ext.reportapi.resource.ReportResource;
+import org.opentripplanner.ext.restapi.resources.BikeRental;
+import org.opentripplanner.ext.restapi.resources.IndexAPI;
+import org.opentripplanner.ext.restapi.resources.PlannerResource;
+import org.opentripplanner.ext.restapi.resources.Routers;
+import org.opentripplanner.ext.restapi.resources.RoutingResource;
 import org.opentripplanner.ext.vectortiles.VectorTilesResource;
 import org.opentripplanner.framework.application.OTPFeature;
 
@@ -62,6 +67,8 @@ public class APIEndpoints {
     addIfEnabled(SandboxAPIParkAndRideApi, ParkAndRideResource.class);
     addIfEnabled(SandboxAPIGeocoder, GeocoderResource.class);
     addIfEnabled(TriasApi, TriasResource.class);
+
+    addLegacyRestApi();
   }
 
   /**
@@ -91,5 +98,12 @@ public class APIEndpoints {
 
   private void add(Class<?> resource) {
     resources.add(resource);
+  }
+
+  private void addLegacyRestApi() {
+    add(BikeRental.class);
+    add(IndexAPI.class);
+    add(PlannerResource.class);
+    add(Routers.class);
   }
 }

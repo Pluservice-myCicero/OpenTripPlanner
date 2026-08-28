@@ -22,6 +22,7 @@ class PersonalModeMapper {
       case BICYCLE -> PersonalModesEnumeration.BICYCLE;
       case SCOOTER -> PersonalModesEnumeration.SCOOTER;
       case CAR, FLEX -> PersonalModesEnumeration.CAR;
+      default -> PersonalModesEnumeration.OTHER;
     };
   }
 }

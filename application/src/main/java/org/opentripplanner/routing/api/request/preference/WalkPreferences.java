@@ -53,7 +53,6 @@ public final class WalkPreferences implements Serializable {
     this.safetyFactor = Units.reluctance(builder.safetyFactor);
     this.escalator = builder.escalator;
     this.maxWalkDistance = builder.maxWalkDistance;
-
   }
 
   public static Builder of() {

@@ -6,12 +6,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.opentripplanner.raptor.api.model.SearchDirection;
 import org.opentripplanner.raptor.api.request.Optimization;
 import org.opentripplanner.raptor.api.request.RaptorProfile;
+import org.opentripplanner.utils.lang.Units;
 import org.opentripplanner.utils.tostring.ToStringBuilder;
 
 /**
@@ -22,6 +24,8 @@ import org.opentripplanner.utils.tostring.ToStringBuilder;
 public final class RaptorPreferences implements Serializable {
 
   public static final RaptorPreferences DEFAULT = new RaptorPreferences();
+  private static final double MIN_RELAX_COST_AT_DESTINATION = 1.0;
+  private static final double MAX_RELAX_COST_AT_DESTINATION = 2.0;
 
   private final Set<Optimization> optimizations;
 
@@ -30,12 +34,14 @@ public final class RaptorPreferences implements Serializable {
   private final SearchDirection searchDirection;
 
   private final Instant timeLimit;
+  private final Double relaxGeneralizedCostAtDestination;
 
   private RaptorPreferences() {
     this.optimizations = EnumSet.of(Optimization.PARETO_CHECK_AGAINST_DESTINATION);
     this.profile = RaptorProfile.MULTI_CRITERIA;
     this.searchDirection = SearchDirection.FORWARD;
     this.timeLimit = null;
+    this.relaxGeneralizedCostAtDestination = null;
   }
 
   private RaptorPreferences(RaptorPreferences.Builder builder) {
@@ -43,6 +49,11 @@ public final class RaptorPreferences implements Serializable {
     this.profile = Objects.requireNonNull(builder.profile);
     this.searchDirection = Objects.requireNonNull(builder.searchDirection);
     this.timeLimit = builder.timeLimit;
+    this.relaxGeneralizedCostAtDestination = Units.normalizedOptionalFactor(
+      builder.relaxGeneralizedCostAtDestination,
+      MIN_RELAX_COST_AT_DESTINATION,
+      MAX_RELAX_COST_AT_DESTINATION
+    );
   }
 
   public static Builder of() {
@@ -72,6 +83,11 @@ public final class RaptorPreferences implements Serializable {
   @Nullable
   public Instant timeLimit() {
     return timeLimit;
+  }
+
+  @Deprecated
+  public Optional<Double> relaxGeneralizedCostAtDestination() {
+    return Optional.ofNullable(relaxGeneralizedCostAtDestination);
   }
 
   @Override
@@ -116,6 +132,7 @@ public final class RaptorPreferences implements Serializable {
     private SearchDirection searchDirection;
     private Set<Optimization> optimizations;
     private Instant timeLimit;
+    private Double relaxGeneralizedCostAtDestination;
 
     public Builder(RaptorPreferences original) {
       this.original = original;
@@ -123,6 +140,7 @@ public final class RaptorPreferences implements Serializable {
       this.searchDirection = original.searchDirection;
       this.optimizations = null;
       this.timeLimit = original.timeLimit;
+      this.relaxGeneralizedCostAtDestination = original.relaxGeneralizedCostAtDestination;
     }
 
     public Builder withOptimizations(Collection<Optimization> optimizations) {
@@ -144,6 +162,13 @@ public final class RaptorPreferences implements Serializable {
 
     public Builder withTimeLimit(Instant timeLimit) {
       this.timeLimit = timeLimit;
+      return this;
+    }
+
+    public Builder withRelaxGeneralizedCostAtDestination(
+      @Nullable Double relaxGeneralizedCostAtDestination
+    ) {
+      this.relaxGeneralizedCostAtDestination = relaxGeneralizedCostAtDestination;
       return this;
     }
 

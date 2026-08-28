@@ -3,6 +3,7 @@ package org.opentripplanner.standalone.config;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.esotericsoftware.minlog.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -29,6 +30,7 @@ public class CommandLineParameters {
 
   private static final String TIP = " Use --help to see available options.";
   private static final int DEFAULT_PORT = 8080;
+  private static final int DEFAULT_SECURE_PORT = -1;
   private static final String DEFAULT_CACHE_PATH = "/var/otp/cache";
   private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
@@ -39,6 +41,9 @@ public class CommandLineParameters {
 
   @Parameter(names = { "--version" }, description = "Print the version, and then exit.")
   public boolean version = false;
+
+  @Parameter(names = { "--killExisting" }, description = "Print the version, and then exit.")
+  public boolean killExisting = false;
 
   @Parameter(
     names = { "--serializationVersionId" },
@@ -160,9 +165,11 @@ public class CommandLineParameters {
   }
 
   private static boolean isAdmin() {
-    String groups[] = (new com.sun.security.auth.module.NTSystem()).getGroupIDs();
+    String[] groups = (new com.sun.security.auth.module.NTSystem()).getGroupIDs();
     for (String group : groups) {
-      if (group.equals("S-1-5-32-544")) return true;
+      if (group.equals("S-1-5-32-544")) {
+        return true;
+      }
     }
     return false;
   }
@@ -179,7 +186,9 @@ public class CommandLineParameters {
 
   public void inferAndValidate(boolean checkPortAvailable) {
     validateOneDirectorySet();
-    if (checkPortAvailable) validatePortsAvailable();
+    if (checkPortAvailable) {
+      validatePortsAvailable();
+    }
     validateParameterCombinations();
 
     if (killExisting && !isAdmin()) {
@@ -278,7 +287,9 @@ public class CommandLineParameters {
   private void validatePortsAvailable() {
     if (doServe()) {
       checkPortAvailable(port);
-      if (securePort > 0) checkPortAvailable(securePort);
+      if (securePort > 0) {
+        checkPortAvailable(securePort);
+      }
     }
   }
 

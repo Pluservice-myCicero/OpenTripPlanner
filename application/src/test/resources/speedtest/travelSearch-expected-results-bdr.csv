@@ -1,3 +1,5 @@
 tcId,nTransfers,duration,cost,walkDistance,startTime,endTime,agencies,modes,routes,stops,details
-1,0,42m44s,0,0,13:17:16,14:00:00,,,,,Unknown transit 0tx 42m44s
-2,0,42m44s,0,0,13:17:16,14:00:00,,,,,Unknown transit 0tx 42m44s
+1,0,41m35s,0,0,13:18:25,14:00:00,,,,,Unknown transit 0tx 41m35s
+1,0,1h19s,0,0,12:59:41,14:00:00,,,,,Unknown transit -1tx 1h19s
+2,0,41m35s,0,0,13:18:25,14:00:00,,,,,Unknown transit 0tx 41m35s
+2,0,1h19s,0,0,12:59:41,14:00:00,,,,,Unknown transit -1tx 1h19s

@@ -1,9 +1,9 @@
-package org.opentripplanner.routing.graph;
+package org.opentripplanner.street.graph;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
 import jakarta.inject.Inject;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -30,6 +30,7 @@ import org.opentripplanner.street.model.vertex.Vertex;
 import org.opentripplanner.street.model.vertex.VertexLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * This is one of the main data structures in OpenTripPlanner. It represents a mathematical object
@@ -95,7 +96,7 @@ public class Graph implements Serializable {
 
   /** If this graph contains elevation data, the maximum elevation value. Otherwise null. */
   public Double maxElevation = null;
-
+  public String routerId;
   /**
    * The horizontal distance across the ground between successive elevation samples in
    * CompactElevationProfile.

@@ -308,6 +308,17 @@ public final class TransitPreferences implements Serializable {
       return withAlightSlack(it -> it.withDefaultSec(defaultValue));
     }
 
+    @Deprecated
+    public Builder setOtherThanPreferredRoutesPenalty(int otherThanPreferredRoutesPenalty) {
+      this.otherThanPreferredRoutesPenalty = Cost.costOfSeconds(otherThanPreferredRoutesPenalty);
+      return this;
+    }
+
+    public Builder setIgnoreRealtimeUpdates(boolean ignoreRealtimeUpdates) {
+      this.ignoreRealtimeUpdates = ignoreRealtimeUpdates;
+      return this;
+    }
+
     public Builder withReluctanceForMode(Map<TransitMode, Double> reluctanceForMode) {
       this.reluctanceForMode = reluctanceForMode;
       return this;

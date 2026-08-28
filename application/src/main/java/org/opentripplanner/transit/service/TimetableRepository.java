@@ -39,7 +39,9 @@ import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.util.ConcurrentPublished;
 import org.opentripplanner.transfer.constrained.ConstrainedTransferService;
 import org.opentripplanner.transfer.constrained.internal.DefaultConstrainedTransferService;
+import org.opentripplanner.transfer.regular.model.PathTransfer;
 import org.opentripplanner.transit.model.basic.Notice;
+import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.AbstractTransitEntity;
 import org.opentripplanner.transit.model.network.BikeAccess;
 import org.opentripplanner.transit.model.network.CarAccess;
@@ -87,9 +89,12 @@ public class TimetableRepository implements Serializable {
   private final Collection<String> feedIds = new HashSet<>();
   private final Map<String, FeedInfo> feedInfoForId = new HashMap<>();
 
+  private final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
   private final Multimap<AbstractTransitEntity, Notice> noticesByElement = HashMultimap.create();
   private final ConstrainedTransferService constrainedTransferService =
     new DefaultConstrainedTransferService();
+
+  private final HashSet<TransitMode> transitModes = new HashSet<>();
 
   private final Map<FeedScopedId, Integer> serviceCodes = new HashMap<>();
 
@@ -204,6 +209,24 @@ public class TimetableRepository implements Serializable {
   public void updateCalendarServiceData(CalendarServiceData data) {
     invalidateIndex();
     calendarServiceData.add(data);
+  }
+
+  /** Pre-generated transfers between all stops. */
+  public Collection<PathTransfer> getTransfersByStop(StopLocation stop) {
+    return transfersByStop.get(stop);
+  }
+
+  /**
+   * Adds mode of transport to transit modes in graph
+   */
+  public void addTransitMode(TransitMode mode) {
+    invalidateIndex();
+    transitModes.add(mode);
+  }
+
+  /** List of transit modes that are available in GTFS data used in this graph **/
+  public HashSet<TransitMode> getTransitModes() {
+    return transitModes;
   }
 
   /**

@@ -46,7 +46,6 @@ import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.routing.framework.DebugTimingAggregator;
 import org.opentripplanner.routing.linking.LinkingContext;
 import org.opentripplanner.routing.via.ViaCoordinateTransferFactory;
-import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.opentripplanner.street.model.StreetMode;
 import org.opentripplanner.transit.model.framework.EntityNotFoundException;
@@ -287,15 +286,12 @@ public class TransitRouter {
       });
     }
 
-    double speedDuration = request.maxWalkDistance / request.preferences().walk().speed();
-    long roundedSpeedDuration = Math.round(speedDuration);
-    Duration durationLimit = Duration.ofSeconds(roundedSpeedDuration);
-
-    int stopCountLimit = accessRequest.preferences().street().accessEgress().maxStopCount();
     var accessRequest = accessBuilder.buildRequest();
     var accessEgressPreferences = accessRequest.preferences().street().accessEgress();
 
-    Duration durationLimit = accessEgressPreferences.maxDuration().valueOf(mode);
+    double speedDuration = request.maxWalkDistance() / request.preferences().walk().speed();
+    long roundedSpeedDuration = Math.round(speedDuration);
+    Duration durationLimit = Duration.ofSeconds(roundedSpeedDuration);
     int stopCountLimit = accessEgressPreferences.maxStopCountLimit().limitForMode(mode);
 
     var nearbyStops = accessEgressRouter.findAccessEgresses(

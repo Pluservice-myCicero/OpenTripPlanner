@@ -14,7 +14,9 @@ public class TransitRequestBuilder {
 
   private List<TransitFilter> filters;
   private List<FeedScopedId> unpreferredAgencies;
+  private List<FeedScopedId> preferredAgencies;
   private List<FeedScopedId> unpreferredRoutes;
+  private List<FeedScopedId> preferredRoutes;
   private List<FeedScopedId> bannedTrips;
   private List<TransitGroupSelect> priorityGroupsByAgency;
   private List<TransitGroupSelect> priorityGroupsGlobal;
@@ -25,6 +27,7 @@ public class TransitRequestBuilder {
     this.original = original;
     this.filters = null;
     this.unpreferredAgencies = null;
+    this.preferredAgencies = null;
     this.unpreferredRoutes = null;
     this.bannedTrips = null;
     this.priorityGroupsByAgency = null;
@@ -89,7 +92,9 @@ public class TransitRequestBuilder {
     var newValue = new TransitRequest(
       ifNotNull(filters, original.filters()),
       ifNotNull(unpreferredAgencies, original.unpreferredAgencies()),
+      ifNotNull(preferredAgencies, original.preferredAgencies()),
       ifNotNull(unpreferredRoutes, original.unpreferredRoutes()),
+      ifNotNull(preferredRoutes, original.preferredRoutes()),
       ifNotNull(bannedTrips, original.bannedTrips()),
       ifNotNull(priorityGroupsByAgency, original.priorityGroupsByAgency()),
       ifNotNull(priorityGroupsGlobal, original.priorityGroupsGlobal()),

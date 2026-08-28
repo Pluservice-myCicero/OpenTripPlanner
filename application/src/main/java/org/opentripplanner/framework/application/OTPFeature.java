@@ -143,6 +143,11 @@ public enum OTPFeature {
       "for now, until this feature is well tested."
   ),
   OjpApi(false, true, "OJP v2.0 API."),
+  RestAPIPassInDefaultConfigAsJson(
+    false,
+    false,
+    "Enable a default RouteRequest to be passed in as JSON on the REST API - FOR DEBUGGING ONLY!"
+  ),
   RealtimeResolver(
     false,
     true,

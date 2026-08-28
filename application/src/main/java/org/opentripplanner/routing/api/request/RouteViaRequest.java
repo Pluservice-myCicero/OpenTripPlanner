@@ -27,7 +27,7 @@ public class RouteViaRequest implements Serializable {
   private final RoutingPreferences preferences;
   private final Locale locale;
   private final Integer numItineraries;
-  private final Double maxWalkDistance;
+  private final int maxWalkDistance;
 
   private RouteViaRequest(
     List<ViaLocationDeprecated> viaLocations,
@@ -52,7 +52,7 @@ public class RouteViaRequest implements Serializable {
     this.preferences = RoutingPreferences.DEFAULT;
     this.locale = null;
     this.numItineraries = null;
-    this.maxWalkDistance = null;
+    this.maxWalkDistance = 10000;
 
     // Last ViaSegment has no ViaLocation
     for (int i = 0; i < viaJourneys.size(); i++) {
@@ -98,9 +98,8 @@ public class RouteViaRequest implements Serializable {
     if (numItineraries != null) {
       request.withNumItineraries(numItineraries);
     }
-    if (maxWalkDistance != null) {
-      request.setMaxWalkDistance(maxWalkDistance);
-    }
+
+    request.setMaxWalkDistance(maxWalkDistance);
 
     request.withJourney(j -> j.withWheelchair(wheelchair));
     return request;
@@ -158,7 +157,7 @@ public class RouteViaRequest implements Serializable {
       Objects.equals(locale, other.locale) &&
       preferences.equals(other.preferences) &&
       Objects.equals(numItineraries, other.numItineraries) &&
-      maxWalkDistance.equals(other.maxWalkDistance)
+      maxWalkDistance == other.maxWalkDistance
     );
   }
 
@@ -189,7 +188,7 @@ public class RouteViaRequest implements Serializable {
     private boolean wheelchair;
     private RoutingPreferences preferences;
     private Integer numItineraries;
-    private Double maxWalkDistance;
+    private int maxWalkDistance;
 
     public Builder(RouteViaRequest original) {
       this.from = original.from;
@@ -247,7 +246,7 @@ public class RouteViaRequest implements Serializable {
       return this;
     }
 
-    public Builder withMaxWalkDistance(Double maxWalkDistance) {
+    public Builder withMaxWalkDistance(int maxWalkDistance) {
       this.maxWalkDistance = maxWalkDistance;
       return this;
     }

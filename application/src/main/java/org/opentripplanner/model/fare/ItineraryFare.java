@@ -52,6 +52,27 @@ public class ItineraryFare {
   }
 
   /**
+   * Get those fare products that are valid for a subset of legs but not the entire itinerary.
+   */
+  public Multimap<Leg, FareProductUse> getLegProductsFromProductUse() {
+    Multimap<Leg, FareProductUse> result = LinkedHashMultimap.create();
+
+    for (var entry : legProducts.entries()) {
+      Leg leg = entry.getKey();
+      FareOffer fareOffer = entry.getValue();
+
+      FareProductUse fareProductUse = new FareProductUse(
+        fareOffer.uniqueId(),
+        fareOffer.fareProduct()
+      );
+
+      result.put(leg, fareProductUse);
+    }
+
+    return result;
+  }
+
+  /**
    * Add fare products that cover the entire itinerary, i.e. are valid for all legs.
    */
   public void addItineraryProducts(Collection<FareProduct> products) {

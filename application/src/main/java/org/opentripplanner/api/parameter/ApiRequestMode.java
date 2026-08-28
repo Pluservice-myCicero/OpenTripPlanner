@@ -24,11 +24,7 @@ public enum ApiRequestMode {
   MONORAIL(TransitMode.MONORAIL),
   CARPOOL(TransitMode.CARPOOL),
   TAXI(TransitMode.TAXI),
-  FLEX,
-  // Car-pooling
-  CarPoolingRequest(TransitMode.CarPoolingRequest),
-  CarPoolingOffer(TransitMode.CarPoolingOffer),
-  TaxiRequest(TransitMode.TaxiRequest);
+  FLEX;
 
   private final List<TransitMode> transitModes;
 

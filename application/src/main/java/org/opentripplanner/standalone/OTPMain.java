@@ -2,21 +2,21 @@ package org.opentripplanner.standalone;
 
 import static org.opentripplanner.model.projectinfo.OtpProjectInfo.projectInfo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.geotools.referencing.factory.DeferredAuthorityFactory;
 import org.geotools.util.WeakCollectionCleaner;
-import org.opentripplanner.datastore.api.DataSource;
 import org.opentripplanner.framework.application.ApplicationShutdownSupport;
 import org.opentripplanner.framework.application.OtpAppException;
 import org.opentripplanner.graph_builder.issue.api.DataImportIssueSummary;
 import org.opentripplanner.logging.LogbackConfigurator;
 import org.opentripplanner.raptor.configure.RaptorConfig;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.SerializedGraphObject;
 import org.opentripplanner.standalone.config.CommandLineParameters;
 import org.opentripplanner.standalone.config.ConfigModel;
@@ -57,27 +57,24 @@ public class OTPMain {
   public static void main(String[] args) {
     // Determine if the application is running in debug mode
     boolean isDebug =
-      java.lang.management.ManagementFactory
-        .getRuntimeMXBean()
+      java.lang.management.ManagementFactory.getRuntimeMXBean()
         .getInputArguments()
         .toString()
         .indexOf("-agentlib:jdwp") >
       0;
 
-    // Initialize logging configuration with a specific directory name
-    CommandLineParameters params = parseAndValidateCmdLine(args);
-    LogbackConfigurator.configure(params.getBaseDirectory().getName());
-
-    // Set the log level based on the debug mode
-    Level level = Level.toLevel(isDebug ? "DEBUG" : "INFO");
-    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-    List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
-    loggerList.forEach(tmpLogger -> tmpLogger.setLevel(level));
-    LOG.info("Change log level to {}", level);
-
     try {
       Thread.currentThread().setName("main");
       CommandLineParameters params = parseAndValidateCmdLine(args);
+      // Initialize logging configuration with a specific directory name
+      LogbackConfigurator.configure(params.getBaseDirectory().getName());
+
+      // Set the log level based on the debug mode
+      Level level = Level.toLevel(isDebug ? "DEBUG" : "INFO");
+      LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+      List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
+      loggerList.forEach(tmpLogger -> tmpLogger.setLevel(level));
+      LOG.info("Change log level to {}", level);
       OtpStartupInfo.logInfo(params.logTaskInfo());
       startOTPServer(params);
     } catch (OtpAppException ae) {
@@ -231,7 +228,7 @@ public class OTPMain {
 
     // publishing the config version info make it available to the APIs
     setOtpConfigVersionsOnServerInfo(app);
-    var configModel = app.getFactory().config();
+
     /* Start visualizer if requested. */
     if (params.visualize) {
       app.graphVisualizer().run();
@@ -245,7 +242,8 @@ public class OTPMain {
       // kill existing process using port
       if (params.killExisting) {
         try {
-          String outLine, searchPort = String.format("0.0.0.0:%s", params.port);
+          String outLine,
+            searchPort = String.format("0.0.0.0:%s", params.port);
           Process p = Runtime.getRuntime().exec("netstat -aon");
           BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
           while ((outLine = input.readLine()) != null) {
@@ -258,11 +256,13 @@ public class OTPMain {
               while (kill.isAlive()) {
                 Thread.sleep(100);
               }
-              if (kill.exitValue() != 0) LOG.error(
-                "An error {} occurred when try kill process PID {}",
-                kill.exitValue(),
-                pid
-              );
+              if (kill.exitValue() != 0) {
+                LOG.error(
+                  "An error {} occurred when try kill process PID {}",
+                  kill.exitValue(),
+                  pid
+                );
+              }
             }
           }
           input.close();

@@ -21,7 +21,7 @@ import org.opentripplanner.routing.algorithm.mapping._support.model.ApiMoney;
 import org.opentripplanner.transit.model.basic.Money;
 
 @Deprecated
-class FareMapper {
+public class FareMapper {
 
   private final Locale locale;
 

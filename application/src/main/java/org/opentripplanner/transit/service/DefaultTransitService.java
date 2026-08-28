@@ -31,6 +31,7 @@ import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.RaptorTransitData;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.transfer.constrained.ConstrainedTransferService;
+import org.opentripplanner.transfer.regular.model.PathTransfer;
 import org.opentripplanner.transit.api.request.FindRegularStopsByBoundingBoxRequest;
 import org.opentripplanner.transit.api.request.FindRoutesRequest;
 import org.opentripplanner.transit.api.request.FindStopLocationsRequest;
@@ -568,6 +569,16 @@ public class DefaultTransitService implements TransitEditorService {
       );
     }
     return timetableRepository.getAllTripsOnServiceDates();
+  }
+
+  @Override
+  public Set<TransitMode> listTransitModes() {
+    return this.timetableRepository.getTransitModes();
+  }
+
+  @Override
+  public Collection<PathTransfer> findPathTransfers(StopLocation stop) {
+    return this.timetableRepository.getTransfersByStop(stop);
   }
 
   @Override
