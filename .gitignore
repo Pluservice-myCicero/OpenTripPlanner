@@ -1,10 +1,9 @@
 
 # Files
 .classpath
+.claude
 .externalToolBuilders
 .gradle
-.project
-.pydevproject
 .settings
 .sonar
 .nvmrc
@@ -29,8 +28,9 @@ o_o_standalone_config_IncludeFileDirectiveTest_part.json
 .venv/
 _site/
 build/
+!/application/src/build/
 dist/
-docs/_build/
+doc/user/_build/
 gen-java/
 gen-javabean/
 gen-py/
@@ -46,3 +46,9 @@ streetGraph.obj
 graph.obj
 # IntelliJ creates these pid files when you attach the debugger to tests
 .attach_pid*
+
+# draw.io backup files
+*.svg.bkp
+
+# EPSG files
+application/v??.?.??
