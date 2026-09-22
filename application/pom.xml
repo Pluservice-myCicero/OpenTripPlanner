@@ -296,12 +296,6 @@
             <artifactId>core</artifactId>
             <version>2.2.1</version>
         </dependency>
-        <!-- Used in DegreeGridNEDTileSource to fetch tiles from Amazon S3 -->
-        <dependency>
-            <groupId>net.java.dev.jets3t</groupId>
-            <artifactId>jets3t</artifactId>
-            <version>0.9.4</version>
-        </dependency>
         <!-- OpenStreetMap protobuf (PBF) definitions and parser -->
         <dependency>
             <groupId>org.openstreetmap.pbf</groupId>

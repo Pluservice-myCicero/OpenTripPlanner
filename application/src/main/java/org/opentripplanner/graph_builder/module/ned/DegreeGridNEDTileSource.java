@@ -7,12 +7,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.ServiceException;
-import org.jets3t.service.impl.rest.httpclient.RestS3Service;
-import org.jets3t.service.model.S3Object;
-import org.jets3t.service.security.AWSCredentials;
+//import org.jets3t.service.S3Service;
+//import org.jets3t.service.S3ServiceException;
+//import org.jets3t.service.ServiceException;
+//import org.jets3t.service.impl.rest.httpclient.RestS3Service;
+//import org.jets3t.service.model.S3Object;
+//import org.jets3t.service.security.AWSCredentials;
 import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.graph_builder.services.ned.NEDTileSource;
 import org.opentripplanner.street.graph.Graph;
@@ -89,7 +89,9 @@ public class DegreeGridNEDTileSource implements NEDTileSource {
   }
 
   private File getPathToTile(int x, int y) {
-    File path = new File(cacheDirectory, formatLatLon(x, y) + ".tiff");
+    throw new RuntimeException("PLUSERVICE: Functionality disabled to avoid using vulnerable libraries");
+
+    /*File path = new File(cacheDirectory, formatLatLon(x, y) + ".tiff");
     if (path.exists()) {
       return path;
     } else {
@@ -143,7 +145,7 @@ public class DegreeGridNEDTileSource implements NEDTileSource {
         throw new RuntimeException(e);
       }
       return path;
-    }
+    }*/
   }
 
   private record IntCoordinate(int x, int y) {}
