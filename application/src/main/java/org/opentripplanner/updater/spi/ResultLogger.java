@@ -1,6 +1,5 @@
 package org.opentripplanner.updater.spi;
 
-
 import java.util.stream.Collectors;
 import org.opentripplanner.utils.lang.DoubleUtils;
 import org.slf4j.Logger;
