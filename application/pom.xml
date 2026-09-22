@@ -251,6 +251,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>[3.1.4,)</version>
+        </dependency>
         <!--
             jersey pulls in older versions of this dependency which are binary-incompatible
             with the latest jackson version, so we need to explicitly define them here
