@@ -1,6 +1,5 @@
 package org.opentripplanner.updater.spi;
 
-import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 import java.util.stream.Collectors;
 import org.opentripplanner.utils.lang.DoubleUtils;
@@ -44,11 +43,11 @@ public class ResultLogger {
         var value = errorIndex.get(key);
         var tripIds = value.stream().map(UpdateError::debugId).collect(Collectors.toSet());
         LOG.warn(
-          "[{} {}] {} failures of {}: {}",
-          keyValue("feedId", feedId),
-          keyValue("type", type),
+          "[feedId={}, type={}] {} failures of errorType={}: {}",
+          feedId,
+          type,
           value.size(),
-          keyValue("errorType", key),
+          key,
           tripIds
         );
       });

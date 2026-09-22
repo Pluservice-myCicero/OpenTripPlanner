@@ -22,23 +22,7 @@
     </encoder>
   </appender>
 
-  <!-- JSON format in the standard Logstash format understood by many log parsing tools  -->
-  <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-      <providers>
-        <timestamp/>
-        <mdc/>
-        <context/>
-        <logLevel/>
-        <loggerName/>
-        <threadName/>
-        <message/>
-        <logstashMarkers/>
-        <arguments/>
-        <stackTrace/>
-      </providers>
-    </encoder>
-  </appender>
+
 
   <!-- Change this to debug to let more messages through. -->
   <root level="info">
