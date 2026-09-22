@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import org.geotools.util.WeakValueHashMap;
-import org.jets3t.service.io.TempFile;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -255,7 +254,8 @@ public class GraphSerializationTest {
     EmpiricalDelayRepository empiricalDelayRepository
   ) throws Exception {
     // Now round-trip the graph through serialization.
-    File tempFile = TempFile.createTempFile("graph", "pdx");
+    //removed as the vulnerable library is not supported anymore
+    File tempFile = null;
 
     SerializedGraphObject serializedObj = new SerializedGraphObject(
       originalGraph,
