@@ -89,7 +89,9 @@ public class DegreeGridNEDTileSource implements NEDTileSource {
   }
 
   private File getPathToTile(int x, int y) {
-    throw new RuntimeException("PLUSERVICE: Functionality disabled to avoid using vulnerable libraries");
+    throw new RuntimeException(
+      "PLUSERVICE: Functionality disabled to avoid using vulnerable libraries"
+    );
 
     /*File path = new File(cacheDirectory, formatLatLon(x, y) + ".tiff");
     if (path.exists()) {
