@@ -548,6 +548,7 @@ public class IndexAPI {
     return Response.status(Status.OK).entity("NONE").build();
   }
 
+  @GET
   @Path("/services/{date}")
   public Response getServices(@PathParam("date") String date) {
     List<String> serviceIdsRunning = new ArrayList<>();
