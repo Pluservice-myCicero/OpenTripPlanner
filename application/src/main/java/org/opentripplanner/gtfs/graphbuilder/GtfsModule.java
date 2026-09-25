@@ -28,6 +28,7 @@ import org.onebusaway.gtfs.services.GtfsRelationalDao;
 import org.opentripplanner.core.framework.deduplicator.DeduplicatorService;
 import org.opentripplanner.core.model.id.FeedScopedId;
 import org.opentripplanner.core.model.time.LocalDateInterval;
+import org.opentripplanner.ext.fares.model.FareRulesData;
 import org.opentripplanner.ext.fares.service.gtfs.v1.DefaultFareServiceFactory;
 import org.opentripplanner.ext.flex.FlexTripsMapper;
 import org.opentripplanner.framework.application.OTPFeature;
@@ -161,27 +162,38 @@ public class GtfsModule implements GraphBuilderModule {
         } catch (IOException e) {
           LOG.error("Creating log error file: {}", e.toString());
         }
-        var gtfsDao = loadBundle(gtfsBundle);
-        var feedId = gtfsBundle.getFeedId();
-        verifyUniqueFeedId(gtfsBundle, feedIdsEncountered, feedId);
+        TransitDataImportBuilder builder = null;
 
-        feedIdsEncountered.put(feedId, gtfsBundle);
-
-        GTFSToTransitDataImportMapper mapper = new GTFSToTransitDataImportMapper(
-          new TransitDataImportBuilder(timetableRepository.getSiteRepository(), issueStore),
-          feedId,
-          issueStore,
-          gtfsBundle.parameters().discardMinTransferTimes(),
-          gtfsBundle.parameters().stationTransferPreference()
-        );
-        mapper.mapStopTripAndRouteDataIntoBuilder(gtfsDao);
-        TransitDataImportBuilder builder = mapper.getBuilder();
-        var fareRulesData = mapper.fareRulesData();
         try {
+          var gtfsDao = loadBundle(gtfsBundle);
+          var feedId = gtfsBundle.getFeedId();
+          verifyUniqueFeedId(gtfsBundle, feedIdsEncountered, feedId);
+
+          feedIdsEncountered.put(feedId, gtfsBundle);
+
+          GTFSToTransitDataImportMapper mapper = new GTFSToTransitDataImportMapper(
+            new TransitDataImportBuilder(timetableRepository.getSiteRepository(), issueStore),
+            feedId,
+            issueStore,
+            gtfsBundle.parameters().discardMinTransferTimes(),
+            gtfsBundle.parameters().stationTransferPreference()
+          );
+          mapper.mapStopTripAndRouteDataIntoBuilder(gtfsDao);
+          builder = mapper.getBuilder();
+          var fareRulesData = mapper.fareRulesData();
           // We need to run this after the cleaning of the data, as stop indices might have changed
           mapper.mapAndAddTransfersToBuilder(gtfsDao);
 
           fareServiceFactory.processGtfs(fareRulesData);
+          builder.limitServiceDays(transitPeriodLimit);
+
+          calendarServiceData.add(builder.buildCalendarServiceData());
+
+          calendarServiceData
+            .getServiceIds()
+            .forEach(sId ->
+              fareRulesData.putServiceIds(sId, calendarServiceData.getServiceDatesForServiceId(sId))
+            );
         } catch (Exception e) {
           File fileBundle = new File(gtfsBundle.getPath());
           gtfsBundlesToDelete.add(fileBundle);
@@ -204,15 +216,7 @@ public class GtfsModule implements GraphBuilderModule {
           continue;
         }
 
-        builder.limitServiceDays(transitPeriodLimit);
 
-        calendarServiceData.add(builder.buildCalendarServiceData());
-
-        calendarServiceData
-          .getServiceIds()
-          .forEach(sId ->
-            fareRulesData.putServiceIds(sId, calendarServiceData.getServiceDatesForServiceId(sId))
-          );
 
         if (OTPFeature.FlexRouting.isOn()) {
           builder.getFlexTripsById().addAll(FlexTripsMapper.createFlexTrips(builder, issueStore));
