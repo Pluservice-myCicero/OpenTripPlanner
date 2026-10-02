@@ -216,8 +216,6 @@ public class GtfsModule implements GraphBuilderModule {
           continue;
         }
 
-
-
         if (OTPFeature.FlexRouting.isOn()) {
           builder.getFlexTripsById().addAll(FlexTripsMapper.createFlexTrips(builder, issueStore));
         }
