@@ -21,7 +21,7 @@ public class JourneyRequest implements Serializable {
   private final StreetRequest egress;
   private final StreetRequest transfer;
   private final StreetRequest direct;
-  private final boolean wheelchair;
+  private boolean wheelchair;
 
   JourneyRequest(
     TransitRequest transit,
@@ -121,5 +121,9 @@ public class JourneyRequest implements Serializable {
       .addObj("direct", direct, DEFAULT.direct)
       .addBoolIfTrue("wheelchair", wheelchair)
       .toString();
+  }
+
+  public void setWheelchair(Boolean wheelchair) {
+    this.wheelchair = wheelchair;
   }
 }

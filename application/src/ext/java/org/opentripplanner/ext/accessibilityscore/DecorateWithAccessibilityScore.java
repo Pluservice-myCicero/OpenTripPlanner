@@ -88,7 +88,7 @@ public class DecorateWithAccessibilityScore implements ItineraryDecorator {
   }
 
   private float compute(StreetLeg leg) {
-    var edges = leg.listWalkSteps().stream().map(WalkStep::getEdges).toList();
+    var edges = leg.listWalkSteps().stream().map(WalkStep::getEdges).flatMap(List::stream).toList();
     var streetEdges = edges
       .stream()
       .filter(StreetEdge.class::isInstance)

@@ -890,6 +890,9 @@ public abstract class RoutingResource {
     if (maxWalkDistance != null) {
       request.maxWalkDistance = maxWalkDistance;
     }
+
+    request.journey().setWheelchair(wheelchair);
+
     return request;
   }
 

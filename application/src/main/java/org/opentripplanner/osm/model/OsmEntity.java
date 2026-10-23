@@ -913,7 +913,7 @@ public abstract class OsmEntity {
     if (isTag("barrier", "kerb")) {
       return isOneOfTags("kerb", WHEELCHAIR_ACCESSIBLE_KERBS);
     }
-    return true;
+    return false;
   }
 
   /**
