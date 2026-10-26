@@ -46,7 +46,7 @@ public class DecorateWithAccessibilityScore implements ItineraryDecorator {
       if (leg instanceof ScheduledTransitLeg transitLeg) {
         return transitLeg.copyOf().withAccessibilityScore(compute(transitLeg)).build();
       } else if (leg instanceof StreetLeg streetLeg && leg.isWalkingLeg()) {
-        return streetLeg.withAccessibilityScore(compute(streetLeg));
+        return streetLeg.withAccessibilityScore((float) compute(streetLeg));
       } else {
         return leg;
       }
@@ -87,7 +87,7 @@ public class DecorateWithAccessibilityScore implements ItineraryDecorator {
     };
   }
 
-  private float compute(StreetLeg leg) {
+  private double compute(StreetLeg leg) {
     var edges = leg.listWalkSteps().stream().map(WalkStep::getEdges).flatMap(List::stream).toList();
     var streetEdges = edges
       .stream()
@@ -95,43 +95,18 @@ public class DecorateWithAccessibilityScore implements ItineraryDecorator {
       .map(StreetEdge.class::cast)
       .toList();
 
-    var maxSlope = streetEdges
+    // PLUSERVICE: accessibility score based on the percentage of wheelchair-accessible path distance
+    var accessibleMeters = streetEdges
       .stream()
-      .filter(StreetEdge::hasElevationExtension)
-      .mapToDouble(StreetEdge::getMaxSlope)
-      .max()
-      .orElse(0);
+      .filter(StreetEdge::isWheelchairAccessible)
+      .mapToDouble(StreetEdge::getDistanceMeters)
+      .sum();
 
-    float score = 0;
+    double totalMeters = streetEdges.stream().mapToDouble(StreetEdge::getDistanceMeters).sum();
 
-    // calculate the worst percentage we go over the max slope
-    // max slope is always above 0
-    double maxSlopeExceeded = streetEdges
-      .stream()
-      .filter(s -> s.getMaxSlope() > maxSlope)
-      .mapToDouble(s -> s.getMaxSlope() - maxSlope)
-      .map(d -> d * 100)
-      .max()
-      .orElse(0);
+    double accessibilityScore = totalMeters == 0 ? 0 : accessibleMeters / totalMeters;
 
-    // for every percent of being over the max slope we decrease the score quadratically
-    // so 2 percent over the max slope is 4 times as bad as being 1 percent over.
-    // this quickly degrades to 0: being 3 degrees over the max slope can at best give you
-    // a score 0.1, everything worse will give you a score of 0!
-    double slopeMalus = (maxSlopeExceeded * maxSlopeExceeded) / 10;
-
-    score += (0.5 - slopeMalus);
-
-    boolean allEdgesAreAccessible = edges
-      .stream()
-      .filter(WheelchairTraversalInformation.class::isInstance)
-      .map(WheelchairTraversalInformation.class::cast)
-      .allMatch(WheelchairTraversalInformation::isWheelchairAccessible);
-    if (allEdgesAreAccessible) {
-      score += 0.5f;
-    }
-
-    return Math.max(score, 0);
+    return Math.max(accessibilityScore, 0);
   }
 
   @Override

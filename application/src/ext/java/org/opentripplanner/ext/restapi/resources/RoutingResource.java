@@ -177,7 +177,7 @@ public abstract class RoutingResource {
    */
   @Deprecated
   @QueryParam("wheelchair")
-  protected Boolean wheelchair;
+  protected Boolean wheelchair = false;
 
   @QueryParam("maxWalkDistance")
   protected Double maxWalkDistance;
