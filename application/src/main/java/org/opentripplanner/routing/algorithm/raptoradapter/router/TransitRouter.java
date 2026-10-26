@@ -3,6 +3,7 @@ package org.opentripplanner.routing.algorithm.raptoradapter.router;
 import static org.opentripplanner.routing.algorithm.raptoradapter.router.street.AccessEgressType.ACCESS;
 import static org.opentripplanner.routing.algorithm.raptoradapter.router.street.AccessEgressType.EGRESS;
 
+import com.esotericsoftware.minlog.Log;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -112,6 +113,7 @@ public class TransitRouter {
 
   private TransitRouterResult route() {
     if (!request.journey().transit().enabled()) {
+      Log.warn("Transit search not enabled");
       return new TransitRouterResult(List.of(), null);
     }
 

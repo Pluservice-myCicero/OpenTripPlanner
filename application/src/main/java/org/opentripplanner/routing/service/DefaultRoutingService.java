@@ -36,7 +36,7 @@ public class DefaultRoutingService implements RoutingService {
 
   @Override
   public RoutingResponse route(RouteRequest request) {
-    LOG.debug("Request: {}", request);
+    LOG.info("Request: {}", request);
     OTPRequestTimeoutException.checkForTimeout();
     request.validateOriginAndDestination();
     var worker = new RoutingWorker(serverContext, request, timeZone);
