@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.api.request.request;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.opentripplanner.core.model.id.FeedScopedId;
@@ -17,7 +18,7 @@ import org.opentripplanner.utils.tostring.ToStringBuilder;
  * filters and debugging capabilities. This class is designed to allow for
  * customization of transit-related searches.
  */
-public class TransitRequest implements Serializable {
+public class TransitRequest implements Cloneable, Serializable {
 
   public static final TransitRequest DEFAULT = new TransitRequest(
     List.of(AllowAllTransitFilter.of()),
@@ -41,7 +42,7 @@ public class TransitRequest implements Serializable {
 
   private List<TransitGroupSelect> priorityGroupsByAgency;
   private List<TransitGroupSelect> priorityGroupsGlobal;
-  private final DebugRaptor raptorDebugging;
+  private DebugRaptor raptorDebugging;
 
   TransitRequest(
     List<TransitFilter> filters,
@@ -227,5 +228,27 @@ public class TransitRequest implements Serializable {
       .addCol("priorityGroupsGlobal", priorityGroupsGlobal)
       .addObj("raptorDebugging", raptorDebugging, DEFAULT.raptorDebugging)
       .toString();
+  }
+
+  public TransitRequest clone() {
+    try {
+      var clone = (TransitRequest) super.clone();
+
+      clone.preferredAgencies = List.copyOf(this.preferredAgencies);
+      clone.unpreferredAgencies = List.copyOf(this.unpreferredAgencies);
+      clone.preferredRoutes = List.copyOf(this.preferredRoutes);
+      clone.unpreferredRoutes = List.copyOf(this.unpreferredRoutes);
+      clone.raptorDebugging = new DebugRaptor(this.raptorDebugging);
+      clone.priorityGroupsByAgency = new ArrayList<>(this.priorityGroupsByAgency);
+      clone.priorityGroupsGlobal = new ArrayList<>(this.priorityGroupsGlobal);
+
+      // filters are immutable
+      clone.setFilters(this.filters);
+
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      /* this will never happen since our super is the cloneable object */
+      throw new RuntimeException(e);
+    }
   }
 }

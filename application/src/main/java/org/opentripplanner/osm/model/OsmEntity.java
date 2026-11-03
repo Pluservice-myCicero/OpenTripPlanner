@@ -169,8 +169,10 @@ public abstract class OsmEntity {
   }
 
   public static boolean isTrue(String tagValue) {
-    return ("yes".equals(tagValue) || "1".equals(tagValue) || "true".equals(tagValue));
+    return ("yes".equals(tagValue) || "1".equals(tagValue) || "true".equals(tagValue) || "limited".equals(tagValue));
   }
+
+
 
   /**
    * Gets the id.
@@ -264,6 +266,8 @@ public abstract class OsmEntity {
 
     return isTrue(getTag(tag));
   }
+
+
 
   /**
    * Returns true if bicycle dismounts are forced.

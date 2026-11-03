@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.opentripplanner.utils.collection.EnumSetUtils;
@@ -68,6 +69,14 @@ public class DebugRaptor implements Serializable {
 
   public DebugRaptor() {
     this(List.of(), List.of(), DEFAULT_DEBUG_PATH_FROM_STOP_INDEX, DEFAULT_EVENT_TYPES);
+  }
+
+  /** Avoid using clone(), use copy-constructor instead (Josh Bloch). */
+  public DebugRaptor(DebugRaptor other) {
+    this.stops = List.copyOf(other.stops);
+    this.path = List.copyOf(other.path);
+    this.debugPathFromStopIndex = other.debugPathFromStopIndex;
+    this.eventTypes = EnumSet.copyOf(other.eventTypes);
   }
 
   public static DebugRaptor defaltValue() {

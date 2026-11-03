@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * in web services that create RouteRequests. This establishes a priority chain for default values:
  * RouteRequest field initializers, then JSON router config, then query parameters.
  */
-public class RouteRequest implements Serializable {
+public class RouteRequest implements Cloneable, Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(RouteRequest.class);
 
@@ -72,7 +72,7 @@ public class RouteRequest implements Serializable {
   @Nullable
   private PageCursor pageCursor;
 
-  private final JourneyRequest journey;
+  private JourneyRequest journey;
   private RoutingPreferences preferences;
   private int numItineraries;
   private final boolean defaultRequest;
@@ -266,7 +266,31 @@ public class RouteRequest implements Serializable {
       throw new RoutingValidationException(routingErrors);
     }
   }
+  /* INSTANCE METHODS */
 
+  /**
+   * This method is used to clone the default message, and insert a current time. A typical use-case
+   * is to copy the default request(from router-config), and then set all user specified parameters
+   * before performing a routing search.
+   */
+  public RouteRequest copyWithDateTimeNow() {
+    RouteRequest copy = clone();
+    copy.setDateTime(Instant.now());
+    return copy;
+  }
+
+  @Override
+  public RouteRequest clone() {
+    try {
+      RouteRequest clone = (RouteRequest) super.clone();
+      clone.journey = journey.clone();
+
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      /* this will never happen since our super is the cloneable object */
+      throw new RuntimeException(e);
+    }
+  }
   /**
    * The origin/start location.
    *

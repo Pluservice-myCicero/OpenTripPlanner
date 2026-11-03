@@ -300,6 +300,7 @@ public class RoutingWorker {
   private RoutingResult routeTransit() {
     debugTimingAggregator.startedTransitRouting();
     try {
+
       var transitResults = TransitRouter.route(
         request,
         serverContext,

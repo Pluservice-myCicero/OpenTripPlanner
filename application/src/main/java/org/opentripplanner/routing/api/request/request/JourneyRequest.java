@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.utils.tostring.ToStringBuilder;
 
-public class JourneyRequest implements Serializable {
+public class JourneyRequest implements Cloneable, Serializable {
 
   public static final JourneyRequest DEFAULT = new JourneyRequest(
     TransitRequest.DEFAULT,
@@ -16,11 +16,11 @@ public class JourneyRequest implements Serializable {
     false
   );
 
-  private final TransitRequest transit;
-  private final StreetRequest access;
-  private final StreetRequest egress;
-  private final StreetRequest transfer;
-  private final StreetRequest direct;
+  private TransitRequest transit;
+  private StreetRequest access;
+  private StreetRequest egress;
+  private StreetRequest transfer;
+  private StreetRequest direct;
   private boolean wheelchair;
 
   JourneyRequest(
@@ -90,6 +90,21 @@ public class JourneyRequest implements Serializable {
       .build();
   }
 
+  public JourneyRequest clone() {
+    try {
+      var clone = (JourneyRequest) super.clone();
+      clone.transit = this.transit.clone();
+      clone.access = this.access.clone();
+      clone.egress = this.egress.clone();
+      clone.transfer = this.transfer.clone();
+      clone.direct = this.direct.clone();
+
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      /* this will never happen since our super is the cloneable object */
+      throw new RuntimeException(e);
+    }
+  }
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) {

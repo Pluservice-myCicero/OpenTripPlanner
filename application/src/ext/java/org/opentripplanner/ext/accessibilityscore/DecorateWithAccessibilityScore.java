@@ -70,13 +70,27 @@ public class DecorateWithAccessibilityScore implements ItineraryDecorator {
     return sum / values.size();
   }
 
+  //PLUSERVICE: add average for legs accessibility
   private static Float compute(List<Leg> legs) {
-    return legs
-      .stream()
-      .map(Leg::accessibilityScore)
-      .filter(Objects::nonNull)
-      .min(Comparator.comparingDouble(Float::doubleValue))
-      .orElse(null);
+
+    double weightedScore = 0;
+    double totalDistance = 0;
+
+    for (var leg : legs) {
+      var score = leg.accessibilityScore();
+      var distance = leg.distanceMeters();
+
+      if (score == null || distance <= 0 || Double.isNaN(distance)) {
+        continue;
+      }
+
+      weightedScore += score * distance;
+      totalDistance += distance;
+    }
+
+    return totalDistance > 0
+      ? (float) (weightedScore / totalDistance)
+      : null;
   }
 
   private static double accessibilityScore(Accessibility wheelchair) {

@@ -721,7 +721,6 @@ public abstract class RoutingResource {
    */
   protected RouteRequest buildRequest(MultivaluedMap<String, String> queryParameters) {
     final RouteRequest request = defaultRouteRequest();
-
     // The routing request should already contain defaults, which are set when it is initialized or
     // in the JSON router configuration and cloned. We check whether each parameter was supplied
     // before overwriting the default.

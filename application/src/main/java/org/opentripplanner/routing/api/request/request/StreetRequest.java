@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.opentripplanner.street.model.StreetMode;
 import org.opentripplanner.utils.tostring.ToStringBuilder;
 
-public class StreetRequest implements Serializable {
+public class StreetRequest implements Cloneable, Serializable {
 
   public static final StreetRequest DEFAULT = new StreetRequest(StreetMode.WALK);
 
@@ -66,5 +66,13 @@ public class StreetRequest implements Serializable {
       .addEnum("mode", mode, DEFAULT.mode)
       .addDuration("rentalDuration", rentalDuration, DEFAULT.rentalDuration)
       .toString();
+  }
+  public StreetRequest clone() {
+    try {
+      return (StreetRequest) super.clone();
+    } catch (CloneNotSupportedException e) {
+      /* this will never happen since our super is the cloneable object */
+      throw new RuntimeException(e);
+    }
   }
 }

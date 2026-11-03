@@ -61,6 +61,7 @@ public class DefaultServerRequestContext implements OtpServerRequestContext {
   private final RaptorConfig<TripSchedule> raptorConfig;
   private final RealtimeVehicleService realtimeVehicleService;
   private final List<RideHailingService> rideHailingServices;
+  private RouteRequest routeRequest = null;
   private final RouteRequest routeRequestDefaults;
   private final StreetLimitationParametersService streetLimitationParametersService;
   private final RegularTransferService transferService;
@@ -206,9 +207,12 @@ public class DefaultServerRequestContext implements OtpServerRequestContext {
     return debugUiConfig;
   }
 
-  @Override
   public RouteRequest defaultRouteRequest() {
-    return routeRequestDefaults;
+    // Lazy initialize request-scoped request to avoid doing this when not needed
+    if (routeRequest == null) {
+      routeRequest = routeRequestDefaults.copyWithDateTimeNow();
+    }
+    return routeRequest;
   }
 
   @Override

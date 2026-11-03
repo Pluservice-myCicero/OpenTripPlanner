@@ -40,7 +40,7 @@
   <logger name="org.opentripplanner.graph_builder.module.transfer.DirectTransferGenerator" level="info"/>
   <logger name="org.opentripplanner.graph_builder.module.osm.OsmModule" level="info"/>
 
-  <logger name="org.opentripplanner.routing" level="info"/>
+  <logger name="org.opentripplanner.routing" level="debug"/>
   <logger name="org.opentripplanner.routing.algorithm.transferoptimization" level="info"/>
 
   <logger name="org.opentripplanner.routing.algorithm.GenericAStar" level="info"/>
@@ -54,10 +54,12 @@
   <logger name="org.opentripplanner.street.model.vertex.IntersectionVertex" level="info"/>
 
   <!-- Raptor request debug logging - Turn on/off: debug/info -->
-  <logger name="org.opentripplanner.raptor.RaptorService" level="info"/>
+  <logger name="org.opentripplanner.raptor.RaptorService" level="debug"/>
+  <logger name="org.opentripplanner.transit" level="DEBUG"/>
+  <logger name="org.opentripplanner.raptor" level="DEBUG"/>
 
   <!-- Turn on/off: debug/info to log OTP request/response -->
-  <logger name="org.opentripplanner.routing.service.DefaultRoutingService" level="info" />
+  <logger name="org.opentripplanner.routing.service.DefaultRoutingService" level="debug" />
 
 
   <!-- THIRD PARTY LOGGERS -->
